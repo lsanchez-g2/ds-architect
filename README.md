@@ -1,5 +1,9 @@
 <div align="center">
 
+
+![Gemini_Generated_Image_gou91kgou91kgou9](https://github.com/user-attachments/assets/f2fa1995-81a7-431b-b453-02d406b75864)
+
+
 # 🏛️ design-system-architect
 
 **A Claude Code skill that thinks like a Design Systems Lead, acts like a Senior Product Designer, and executes like a Frontend Architect.**
