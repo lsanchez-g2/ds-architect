@@ -14,7 +14,7 @@
 [![WCAG 2.2](https://img.shields.io/badge/WCAG_2.2-AA%2FAAA-1A9C3E?style=flat-square)](https://www.w3.org/WAI/WCAG22/quickref/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 
-*Drop a Figma URL. Get a full system audit, a prioritized action plan, and direct Figma execution — in one conversation.*
+*Drop a Figma URL. Get a full system audit, a prioritized action plan, direct Figma execution, and production-ready code exports — in one conversation.*
 
 </div>
 
@@ -22,21 +22,25 @@
 
 ## What it is
 
-`design-system-architect` is a [Claude Code skill](https://claude.ai/code) that embeds a Design System Architect directly into your workflow. It connects to your Figma file via MCP, audits the entire system, surfaces every gap with evidence, and — after your approval — applies fixes directly back into Figma.
+`design-system-architect` is a [Claude Code skill](https://claude.ai/code) that embeds a Design System Architect directly into your workflow. It connects to your Figma file via MCP, audits the entire system, surfaces every gap with evidence, and — after your approval — applies fixes directly back into Figma, then exports a complete set of production-ready code artifacts for your codebase.
 
-No back-and-forth. No vague recommendations. Every finding includes a concrete fix. Every fix is token-ordered, regression-safe, and composability-preserving.
+No back-and-forth. No vague recommendations. Every finding includes a concrete fix. Every fix is token-ordered, regression-safe, and composability-preserving. Every export is drop-in ready.
 
 ---
 
 ## How it works
 
-The skill runs a strict **3-phase workflow**:
+The skill runs a strict **5-phase workflow**:
 
 ```
 Phase 1 ──── AUDIT ──────────────── Read-only. Never touches the file.
 Phase 2 ──── REPORT + PLAN ──────── Dual output: human report + machine JSON.
 Phase 3 ──── EXECUTION ──────────── Only runs after your explicit approval.
+Phase 4 ──── EXPORT ─────────────── Production-ready code artifacts.
+Phase 5 ──── LIVING DOCS ────────── HANDOFF.md — single source of truth.
 ```
+
+---
 
 ### Phase 1 — Audit
 
@@ -47,6 +51,8 @@ Parses the entire Figma structure programmatically:
 - Token scopes, mode support, and alias chains
 - Text styles and effect styles
 - Naming consistency and governance readiness
+- *(If codebase path provided)* `tailwind.config.js`, `tokens.json`, existing Storybook stories — for design ↔ code drift detection
+- *(If previous run exists)* `audit-history/latest.json` — diffs against current state to surface regressions and improvements
 
 Flags every inconsistency, gap, and anti-pattern with **evidence from the actual Figma data** — not assumptions.
 
@@ -62,9 +68,9 @@ Two outputs, produced together:
 Executive Summary
 ├── System maturity score (0–5)
 ├── shadcn/ui alignment: low / medium / high
-├── Key risks
-├── Scalability blockers
-└── Top 5 critical issues
+├── Key risks and scalability blockers
+├── Top 5 critical issues
+└── Drift summary (if previous snapshot exists)
 
 Critical Gaps
 └── Each gap: what it is · why it matters · evidence from audit
@@ -72,6 +78,9 @@ Critical Gaps
 Action Plan (prioritized)
 └── Ordered by lowest effort + highest impact
     └── Each item: change · why · impact · effort · risk
+
+Export Plan
+└── What Phase 4 will generate based on audit findings
 ```
 
 #### Output B — Machine JSON
@@ -80,6 +89,11 @@ Action Plan (prioritized)
 {
   "system_maturity": 3.5,
   "shadcn_alignment": "high",
+  "drift_from_previous": {
+    "improved": ["Button corner radius now token-bound"],
+    "regressed": [],
+    "new_issues": ["Badge component missing hover state"]
+  },
   "issues": [
     {
       "id": "GAP-01",
@@ -87,7 +101,7 @@ Action Plan (prioritized)
       "category": "tokens",
       "severity": "critical",
       "impact": "Every Figma property picker flooded with all tokens simultaneously",
-      "evidence": "3. Mode collection: 72/72 variables have scopes: ['ALL_SCOPES']",
+      "evidence": "72/72 variables have scopes: ['ALL_SCOPES']",
       "fix": "Remap to context-specific scopes: backgrounds → FRAME_FILL/SHAPE_FILL, text → TEXT_FILL, borders → STROKE_COLOR"
     }
   ],
@@ -98,6 +112,14 @@ Action Plan (prioritized)
     "states": ["Checkbox: Indeterminate"],
     "documentation": []
   },
+  "design_code_drift": [
+    {
+      "token": "color.primary",
+      "figma_value": "#3B5BDB",
+      "code_value": "#3B4BDB",
+      "delta": "hue off by 10 — Figma is source of truth"
+    }
+  ],
   "action_plan": [
     {
       "step": 1,
@@ -107,12 +129,7 @@ Action Plan (prioritized)
       "effort": "low",
       "dependencies": []
     }
-  ],
-  "implementation_specs": {
-    "tokens": {},
-    "components": {},
-    "storybook_mapping": {}
-  }
+  ]
 }
 ```
 
@@ -130,6 +147,89 @@ After you approve (all or specific steps), the skill applies changes directly in
 | 4. Documentation / governance | Lock in naming and contribution rules |
 
 **Guarantees:** backward compatibility, no visual regressions, no renames without migration path.
+
+After execution, saves a versioned snapshot to `audit-history/<date>.json` for drift detection on future runs.
+
+---
+
+### Phase 4 — Export (Code Artifacts)
+
+Generates a complete `design-system/` directory that your codebase can consume directly:
+
+```
+design-system/
+├── tokens/
+│   ├── tokens.json          ← W3C Design Token format (Style Dictionary compatible)
+│   ├── tokens.css           ← CSS custom properties, light + dark modes
+│   ├── tokens.ts            ← TypeScript token map with full type safety
+│   └── tailwind.tokens.js   ← Drop-in Tailwind theme extension
+├── components/
+│   ├── [Component].types.ts ← Props interfaces from Figma component properties
+│   └── [Component].stories.tsx ← Storybook stories (every variant × state)
+├── audit-history/
+│   ├── <date>.json          ← Versioned audit snapshot
+│   └── latest.json          ← Always points to most recent
+└── HANDOFF.md               ← Human-readable system documentation
+```
+
+**tokens.json** — W3C Design Token format, Style Dictionary compatible:
+```json
+{
+  "color": {
+    "primary": { "$value": "#3B5BDB", "$type": "color" },
+    "primary-foreground": { "$value": "#FFFFFF", "$type": "color" }
+  },
+  "motion": {
+    "duration-200": { "$value": "200ms", "$type": "duration" },
+    "ease-out": { "$value": "cubic-bezier(0, 0, 0.2, 1)", "$type": "cubicBezier" }
+  }
+}
+```
+
+**tokens.css** — CSS custom properties, light and dark modes:
+```css
+:root {
+  --color-background: #FFFFFF;
+  --color-primary: #3B5BDB;
+  --motion-duration-200: 200ms;
+}
+[data-theme="dark"] {
+  --color-background: #0A0A0A;
+}
+```
+
+**Button.stories.tsx** — every variant × state as a named story:
+```typescript
+export const Default: Story = { args: { variant: 'default', size: 'default' } };
+export const Destructive: Story = { args: { variant: 'destructive' } };
+export const Loading: Story = { args: { variant: 'default', disabled: true } };
+// ... one story per variant × state combination
+```
+
+**Button.types.ts** — TypeScript types from Figma component properties:
+```typescript
+export type ButtonVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'ghost' | 'link';
+export type ButtonSize = 'default' | 'sm' | 'lg' | 'icon';
+export interface ButtonProps {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  disabled?: boolean;
+  children?: React.ReactNode;
+}
+```
+
+---
+
+### Phase 5 — Living Documentation
+
+Generates `HANDOFF.md` — a comprehensive, human-readable reference covering the entire system:
+
+- Quick start (install tokens, import CSS, configure Tailwind)
+- Full token reference table (name · light value · dark value · CSS variable · Tailwind class)
+- Component library (variants table · props · states · accessibility notes · usage snippets)
+- Design ↔ code drift table (if codebase provided)
+- Changelog (diff from previous audit)
+- Governance rules encoded as constraints
 
 ---
 
@@ -151,7 +251,7 @@ After you approve (all or specific steps), the skill applies changes directly in
 </tr>
 <tr>
 <td><strong>🧩 Components</strong></td>
-<td>Coverage vs. shadcn/ui baseline · variant completeness · state coverage (hover/focus/error/loading/disabled/empty) · composability · redundancy</td>
+<td>Coverage vs. shadcn/ui baseline · variant completeness · state coverage (hover/focus/error/loading/disabled/empty/indeterminate) · composability · redundancy</td>
 </tr>
 <tr>
 <td><strong>♿ Accessibility</strong></td>
@@ -160,6 +260,10 @@ After you approve (all or specific steps), the skill applies changes directly in
 <tr>
 <td><strong>📚 Storybook</strong></td>
 <td>Variant → props mapping · token usage in code · controls definition · dev-ready API clarity</td>
+</tr>
+<tr>
+<td><strong>🔀 Drift Detection</strong></td>
+<td>Design ↔ code token divergences · Figma vs codebase value comparison · regression tracking across audit runs</td>
 </tr>
 <tr>
 <td><strong>📄 Documentation</strong></td>
@@ -201,6 +305,9 @@ Tested on **Apollo v2.1** — a production shadcn/ui-based design system:
 "our spacing tokens only show up in gap pickers, not padding — is that a scope issue?"
 "wcag audit our component library: figma.com/design/..."
 "I want a full maturity assessment of our design system"
+"export our tokens to CSS and TypeScript"
+"generate Storybook stories from our Figma components"
+"check if our Figma tokens match what's in tailwind.config"
 ```
 
 ---
@@ -240,6 +347,7 @@ The skill is built around [shadcn/ui](https://ui.shadcn.com/) architecture conve
 - **No assumptions without evidence** — every issue cites data from the Figma audit
 - **Every issue gets a fix** — identification without remediation is noise
 - **System over local** — prefer root-cause fixes over patches
+- **Drift is regression** — any divergence between Figma and code is a bug, not a preference
 
 ---
 
