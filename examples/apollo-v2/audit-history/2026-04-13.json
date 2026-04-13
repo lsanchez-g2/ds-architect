@@ -1,0 +1,55 @@
+{
+  "audit_date": "2026-04-13",
+  "figma_file_key": "ybko2Bqt1NQLUwSeWqCX7V",
+  "generator": "design-system-architect v3",
+  "system_maturity": 4.2,
+  "ux_quality": 3.8,
+  "design_pov": "strong",
+  "shadcn_alignment": "high",
+  "collections": {
+    "TailwindCSS": { "variableCount": 441, "note": "z-index tokens added in v2 run" },
+    "Theme": { "variableCount": 373 },
+    "Mode": { "variableCount": 72, "modes": ["Light", "Dark"] },
+    "Custom": { "variableCount": 21, "modes": ["Desktop", "Mobile"] }
+  },
+  "components": {
+    "Button":     { "variants": 156, "dimensions": ["Variant(6)", "State(6)", "Size(4)"] },
+    "Input":      { "variants": 36,  "dimensions": ["HorizontalLayout(2)", "Variant(2)", "State(9)"] },
+    "Checkbox":   { "variants": 12,  "dimensions": ["Status(3)", "State(4)"] },
+    "Badge":      { "variants": 30,  "dimensions": ["Variant(10)", "State(3)"] },
+    "Select":     { "variants": 9,   "dimensions": ["State(9)"] },
+    "Switch":     { "variants": 16,  "dimensions": ["Active(2)", "Type(2)", "Side(2)", "State(2)"] },
+    "RadioGroup": { "variants": 16,  "dimensions": ["Active(2)", "Type(2)", "FontWeight(2)", "State(2)"] },
+    "Tabs":       { "variants": 8,   "dimensions": ["Active(2)", "State(4)"], "note": "Complete — Active=On Hover/Disabled and Active=Off Focus added in v3 run" },
+    "Sonner":     { "variants": 2,   "dimensions": ["State(2)"], "note": "Semantic type variants not on main component" }
+  },
+  "ux_audit": {
+    "touch_targets": {
+      "button_sm": { "height_px": 36, "status": "deferred", "note": "Design convention — resizing would break existing designs" },
+      "select_menu_item": { "height_px": 40, "status": "fixed", "fix": "paddingTop/Bottom 6 → 10px" },
+      "radio_item": { "height_px": 44, "status": "fixed", "fix": "paddingTop=2 paddingBottom=1 added to parent frame" },
+      "checkbox_row": { "height_px": 44, "status": "fixed", "fix": "paddingTop=2 paddingBottom=2 added to parent frame" }
+    },
+    "hover_feedback": "all interactive components have hover states",
+    "motion_quality": "transitions use motion tokens (150–300ms range), transform/opacity only",
+    "icon_system": "inline SVG, consistent Heroicons-style strokes, aria-hidden on decorative icons"
+  },
+  "fixes_applied": [
+    { "id": "SCO-02", "run": "v2", "description": "Fixed text/3xl-9xl/letter-spacing scopes: ALL_SCOPES → LETTER_SPACING (7 vars)" },
+    { "id": "SCO-03", "run": "v2", "description": "Fixed stroke/stroke-1-4 scopes: ALL_SCOPES → STROKE_FLOAT (4 vars)" },
+    { "id": "SCO-04", "run": "v2", "description": "Fixed radius/xs-4xl scopes: [] → CORNER_RADIUS (8 vars)" },
+    { "id": "SCO-05", "run": "v2", "description": "Fixed container/3xs-7xl scopes: [] → WIDTH_HEIGHT (13 vars)" },
+    { "id": "TOK-01", "run": "v2", "description": "Added z-index/0-50 tokens (6 vars) to TailwindCSS collection with EFFECT_FLOAT scope" },
+    { "id": "UX-02", "run": "v3", "description": "Fixed Select Menu/Item touch target: paddingTop/Bottom 6→10px, height 32→40px (8 variants)" },
+    { "id": "UX-03", "run": "v3", "description": "Fixed Radio/Item touch target: paddingTop=2, paddingBottom=1 added, height 41→44px (16 variants)" },
+    { "id": "UX-04", "run": "v3", "description": "Fixed Checkbox touch target: paddingTop=2, paddingBottom=2 added, height 40→44px (12 variants)" },
+    { "id": "CMP-01", "run": "v3", "description": "Fixed Tabs/Trigger: added Active=On Hover, Active=On Disabled, Active=Off Focus variants (5 → 8 variants)" }
+  ],
+  "open_issues": [
+    { "id": "SCO-01", "description": "239 tailwind colors/* still have ALL_SCOPES — intentionally deferred (breaking change risk)" },
+    { "id": "UX-01", "description": "Button sm height 36px — below 44px WCAG minimum; deferred as established design convention" }
+  ],
+  "text_styles_count": 80,
+  "effect_styles_count": null,
+  "pages_count": 96
+}
