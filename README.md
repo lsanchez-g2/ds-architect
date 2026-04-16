@@ -8,7 +8,7 @@
 
 **A Claude Code skill that thinks like a Design Systems Lead, acts like a Senior Product Designer, and executes like a Frontend Architect.**
 
-> v3 — now with UX Quality auditing (touch targets, hover, motion, icon system) and Design Intentionality scoring.
+> v2.0 — now with 3 modes: Hardcore (full system), Soft (single component), and Spec (custom requirements).
 
 [![Claude Code](https://img.shields.io/badge/Claude_Code-Skill-8B5CF6?style=flat-square&logo=anthropic&logoColor=white)](https://claude.ai/code)
 [![Figma MCP](https://img.shields.io/badge/Figma_MCP-Required-F24E1E?style=flat-square&logo=figma&logoColor=white)](https://www.figma.com)
@@ -16,7 +16,7 @@
 [![WCAG 2.2](https://img.shields.io/badge/WCAG_2.2-AA%2FAAA-1A9C3E?style=flat-square)](https://www.w3.org/WAI/WCAG22/quickref/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 
-*Drop a Figma URL. Get a full system audit, a prioritized action plan, direct Figma execution, and production-ready code exports — in one conversation.*
+*Choose your mode: audit an entire system, deep-dive a single component, or validate against custom specs. Get a prioritized action plan, direct Figma execution, and production-ready code exports — in one conversation.*
 
 </div>
 
@@ -24,15 +24,28 @@
 
 ## What it is
 
-`design-system-architect` is a [Claude Code skill](https://claude.ai/code) that embeds a Design System Architect directly into your workflow. It connects to your Figma file via MCP, audits the entire system, surfaces every gap with evidence, and — after your approval — applies fixes directly back into Figma, then exports a complete set of production-ready code artifacts for your codebase.
+`design-system-architect` is a [Claude Code skill](https://claude.ai/code) that embeds a Design System Architect directly into your workflow. It offers **3 modes** to match your workflow: audit an entire system (Hardcore), deep-dive a single component (Soft), or validate against your custom requirements (Spec). It connects to your Figma file via MCP, surfaces every gap with evidence, and — after your approval — applies fixes directly back into Figma, then exports production-ready code artifacts.
 
 No back-and-forth. No vague recommendations. Every finding includes a concrete fix. Every fix is token-ordered, regression-safe, and composability-preserving. Every export is drop-in ready.
 
 ---
 
-## How it works
+## 3 Modes
 
-The skill runs a strict **5-phase workflow**:
+| Feature | 🔥 Hardcore | 🎯 Soft | 📋 Spec |
+|---|---|---|---|
+| **Scope** | Full system | Single component | Single component |
+| **Checks** | 4-layer audit (breadth) | 8-point deep-dive (depth) | Your requirements + standard checks |
+| **Best for** | System-wide health, quarterly reviews, pre-launch checks | Component quality, debugging edge cases, validating new components | Build-to-spec validation, custom governance, "I need this Button to support X" |
+| **Time** | 5-15 min | 1-3 min | 1-3 min |
+| **Custom requirements** | ❌ | ❌ | ✅ |
+| **Output** | Full system report + exports | Component report + exports | Spec validation report + exports |
+
+---
+
+## How it works (Hardcore Mode)
+
+**Hardcore Mode** runs a strict **5-phase workflow** for full system audits:
 
 ```
 Phase 1 ──── AUDIT ──────────────── Read-only. Never touches the file.
@@ -41,6 +54,10 @@ Phase 3 ──── EXECUTION ──────────── Only runs af
 Phase 4 ──── EXPORT ─────────────── Production-ready code artifacts.
 Phase 5 ──── LIVING DOCS ────────── HANDOFF.md — single source of truth.
 ```
+
+**Soft Mode** runs a focused 4-phase workflow for single components: Audit (8-point deep-dive) → Report → Fixes (after approval) → Export (types + stories + report).
+
+**Spec Mode** runs a custom 4-phase workflow: Capture Requirements → Validate (your specs + 8-point audit) → Fixes (after approval) → Export (types + stories + spec report).
 
 ---
 
@@ -343,6 +360,7 @@ examples/apollo-v2/
 
 ## Example triggers
 
+**Hardcore Mode** (full system):
 ```
 "audit my design system: figma.com/design/abc123/MyDS"
 "our tokens are a mess — some colors are hardcoded and not using variables"
@@ -350,14 +368,28 @@ examples/apollo-v2/
 "what are we missing compared to the shadcn baseline?"
 "make our Figma dev-ready before we onboard new engineers"
 "our spacing tokens only show up in gap pickers, not padding — is that a scope issue?"
-"wcag audit our component library: figma.com/design/..."
 "I want a full maturity assessment of our design system"
-"export our tokens to CSS and TypeScript"
-"generate Storybook stories from our Figma components"
-"check if our Figma tokens match what's in tailwind.config"
-"are our touch targets WCAG compliant?"
 "does our design system have a strong visual identity or does it look generic?"
-"check our hover states and motion — are they consistent?"
+```
+
+**Soft Mode** (single component):
+```
+"audit this Button component: figma.com/design/.../Button"
+"validate this Input component against shadcn standards"
+"check if this Select component is production-ready"
+"are the hover states consistent on this Card component?"
+"does this Checkbox meet WCAG touch target requirements?"
+"audit the token bindings on this Badge component"
+```
+
+**Spec Mode** (custom requirements):
+```
+"I need this Button to support loading state across all size variants"
+"validate that this Input has icon-left and icon-right variants"
+"this Select must work in light and dark mode with proper contrast"
+"all variants of this Badge must be at least 44px tall"
+"this Checkbox needs to support indeterminate state with proper ARIA"
+"ensure this component uses only semantic tokens, no primitives"
 ```
 
 ---
