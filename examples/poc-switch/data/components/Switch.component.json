@@ -1,0 +1,323 @@
+{
+  "$schema": "../../../../BUNDLE_SPEC.md#section-6.2",
+  "$bundleSchemaVersion": "0.3.0",
+
+  "id": "switch",
+  "name": "Switch",
+  "level": "atom",
+  "figmaComponentSetId": "60:450",
+  "figmaParentFrame": "60:450",
+  "figmaFileKey": "3401ZFUHoboOwA6GGjAEsq",
+  "description": "Boolean toggle. Off/On states with optional label + description. Maps to shadcn/ui Switch.",
+  "documentationLinks": ["https://ui.shadcn.com/docs/components/switch"],
+
+  "variantProperties": {
+    "size":              { "type": "VARIANT", "values": ["default", "sm"] },
+    "active":            { "type": "VARIANT", "values": ["Off", "On"] },
+    "state":             { "type": "VARIANT", "values": ["Default", "Disabled", "Focus", "Invalid"] },
+    "type":              { "type": "VARIANT", "values": ["Default", "Box"] },
+    "controlPlacement":  { "type": "VARIANT", "values": ["Start", "End"] }
+  },
+  "variantConstraints": [],
+  "totalVariantCells": 64,
+
+  "$matrixNote": "5 axes — twice the dimensional complexity of Button's 3-axis matrix. Stress-tests SP-1 exposedProps filtering + variantConstraints across more permutations. Bundle counts 64 cells = 2 × 2 × 4 × 2 × 2.",
+
+  "$missingStates": {
+    "$comment": "Apollo v2 Switch's state axis is 4 values (Default/Disabled/Focus/Invalid). Compare Button's 6 (Default/Hover/Focus/Loading/Disabled/Pressed).",
+    "absent": ["Hover", "Pressed", "Loading"],
+    "$auditFindings": [
+      "F5 (MEDIUM): Switch lacks Hover state — no mouse-hover visual feedback on track or thumb.",
+      "F6 (LOW): Switch lacks Pressed state — toggle interaction has no visible down-feedback.",
+      "F-7 (LOW): Switch lacks Loading state — no busy-async-toggle cue (Button has it via SP-5 swapDefaults; Switch could mirror)."
+    ]
+  },
+
+  "defaultVariant": { "size": "default", "active": "Off", "state": "Default", "type": "Default", "controlPlacement": "Start" },
+
+  "exposedProps": [
+    { "name": "labelText",       "type": "TEXT",    "default": "Switch Text",                            "description": "Visible label." },
+    { "name": "descriptionText", "type": "TEXT",    "default": "This is a switch description.",          "description": "Helper / description text below the label." },
+    { "name": "showLabel",       "type": "BOOLEAN", "default": true,                                     "description": "Reveal the label slot." },
+    { "name": "showDescription", "type": "BOOLEAN", "default": true,                                     "description": "Reveal the description slot." }
+  ],
+
+  "slots": [
+    {
+      "name": "track",
+      "type": "FRAME",
+      "$role": "The pill-shaped toggle background. Color changes by active + state.",
+      "geometry": {
+        "default": { "width": "{width.w-8}",  "height": "18.4px", "$heightBindingStatus": "hardcoded", "$heightAuditFinding": "F9 (MEDIUM): Track height 18.4px not bound to any token. Apollo v2 has no height/h-* at 18.4; closest is h-4 (16) or would need new h-4-5 (18). Source-DS audit candidate." },
+        "sm":      { "width": "{width.w-6}",  "height": "TBDStep3", "$tbdReason": "size=sm track height not yet walked. Likely smaller (~14px) given pattern." }
+      },
+      "border": "border-2 (transparent)",
+      "$borderPatternNote": "Track has a 2px transparent border that acts as breathing room between thumb and track edge. Clever pattern; the thumb's effective travel range = (track-width − thumb-width − 2×border-spacing). Document so consumers don't strip the transparent border thinking it's a no-op.",
+      "padding-x": "1px",
+      "radius": "{border-radius.rounded-full}"
+    },
+    {
+      "name": "thumb",
+      "type": "ELLIPSE/FRAME",
+      "$role": "The round movable circle. Color stays consistent; position shifts on active.",
+      "geometry": {
+        "default": { "width": "{width.w-4}", "height": "{height.h-4}", "$shape": "square frame with rounded-full radius = effective circle" },
+        "sm":      { "width": "{width.w-3}", "height": "{height.h-3}", "$shape": "12×12 circle" }
+      },
+      "fill": "{color.base.background}",
+      "radius": "{border-radius.rounded-full}",
+      "$positionNote": "Thumb position is animation-driven: at left edge of inner-track when active=Off, at right edge when active=On. Captured by SP-9 motion descriptor (see animations[] below)."
+    },
+    {
+      "name": "label",
+      "type": "TEXT",
+      "exposedBy": "showLabel",
+      "typography": "{typography.text-sm-leading-normal-medium}",
+      "fill": {
+        "Default":  "{color.base.foreground}",
+        "Disabled": "{color.base.muted-foreground}",
+        "Focus":    "{color.base.foreground}",
+        "Invalid":  "{color.base.foreground}"
+      }
+    },
+    {
+      "name": "description",
+      "type": "TEXT",
+      "exposedBy": "showDescription",
+      "typography": "{typography.text-sm-leading-normal-normal}",
+      "fill": {
+        "Default":  "{color.base.muted-foreground}",
+        "Disabled": "{color.base.muted-foreground}",
+        "Focus":    "{color.base.muted-foreground}",
+        "Invalid":  "{color.base.destructive}",
+        "$invalidNote": "Likely shifts to destructive on Invalid state to signal the error. Verify in Step 3."
+      }
+    }
+  ],
+
+  "layout": {
+    "container": {
+      "mode": "HORIZONTAL",
+      "$controlPlacementNote": "controlPlacement=Start → track first, then Field Content. controlPlacement=End → Field Content first, then track. itemOrder flips.",
+      "gap": "{spacing.2}",
+      "primaryAxisAlignItems": "MIN",
+      "counterAxisAlignItems": "MIN",
+      "primaryAxisSizingMode": "FIXED",
+      "$widthNote": "Container width is FIXED at 312px (Type=Default) or 300px (Type=Box). Hardcoded, not bound. Audit signal."
+    },
+    "fieldContent": {
+      "mode": "VERTICAL",
+      "gap": "{spacing.0-5}"
+    },
+    "track": {
+      "mode": "HORIZONTAL",
+      "padding-x": "1px",
+      "$paddingNote": "1px raw, not from a spacing token. Source-DS audit: should be a fractional spacing token (no spacing/0-25 exists at 1px) OR removed in favor of border-2 transparent technique."
+    }
+  },
+
+  "bindings": {
+    "$comment": "Switch has a richer per-axis-combination binding map than Button. Some properties depend on multiple axes (e.g. track fill = function of active + state).",
+
+    "radius": {
+      "track":      "{border-radius.rounded-full}",
+      "thumb":      "{border-radius.rounded-full}",
+      "boxFrame":   "{border-radius.rounded-lg}",
+      "$comment": "Track and thumb are universally pill-rounded. Box-type frame uses rounded-lg (10px)."
+    },
+
+    "track-fill": {
+      "$axisDependency": "active + state",
+      "Off": {
+        "Default":  "{color.custom.input-dark-input-80}",
+        "Disabled": "{color.custom.input-dark-input-80}",
+        "Focus":    "{color.custom.input-dark-input-80}",
+        "Invalid":  "{color.custom.input-dark-input-80}",
+        "$confirmed": "Walked cell 428:1425 (default/Off/Default/Default/Start). Track fill = input-dark-input-80 (#a3a3a3 gray) in Off state. Other state cells inferred from pattern; confirm in Step 3."
+      },
+      "On": {
+        "Default":  "{color.base.primary}",
+        "Disabled": "{color.base.primary}",
+        "Focus":    "{color.base.primary}",
+        "Invalid":  "{color.base.destructive}",
+        "$tbdStep3": "Inferred: On track fills to primary (or destructive on Invalid). Verify per cell."
+      }
+    },
+
+    "thumb-fill": {
+      "$all": "{color.base.background}",
+      "$comment": "Thumb stays #fafafa across all 64 cells. Travel changes by active; color does not."
+    },
+
+    "focus-ring": {
+      "$axisDependency": "state",
+      "Default":  null,
+      "Disabled": null,
+      "Focus":    "{effect.focus-default}",
+      "Invalid":  "{effect.focus-destructive}",
+      "$invalidNote": "Invalid state likely uses destructive focus ring (matches Button's Destructive variant convention). Confirm via cell 21141:9448."
+    },
+
+    "opacity": {
+      "$axisDependency": "state",
+      "Default":  "1",
+      "Disabled": "{opacity.opacity-50}",
+      "Focus":    "1",
+      "Invalid":  "1",
+      "$disabledNote": "Switch uses opacity-50 for Disabled. Audit Finding 8 (NEW): inconsistent with Button (which uses tinted color, not opacity). Cross-component DS inconsistency. Recommend standardizing — either all-opacity or all-tinted-color.",
+      "$confirmedNote": "opacity-50 token observed in Switch tokens.json; confirm per-cell application via Step 3."
+    },
+
+    "size-axis": {
+      "default": {
+        "trackWidth":  "{width.w-8}",
+        "trackHeight": "18.4px",
+        "$trackHeightBindingStatus": "hardcoded",
+        "thumbWidth":  "{width.w-4}",
+        "thumbHeight": "{height.h-4}",
+        "$confirmed": "Walked cell 428:1425."
+      },
+      "sm": {
+        "trackWidth":  "{width.w-6}",
+        "trackHeight": "TBDStep3",
+        "thumbWidth":  "{width.w-3}",
+        "thumbHeight": "{height.h-3}",
+        "$tbdStep3":   ["trackHeight"]
+      }
+    },
+
+    "type-axis": {
+      "Default": {
+        "$role": "Compact inline layout — label + description next to a bare track. No frame around the component.",
+        "containerWidth":  "312px (Type=Default size=default) / 304px (Type=Default size=sm)",
+        "containerBorder": "none",
+        "containerPadding": "0",
+        "containerRadius": "0"
+      },
+      "Box": {
+        "$role": "Boxed layout — label + description + track inside a bordered container. For form-field placement parity.",
+        "containerWidth":  "300px (Type=Box size=default) / 296px (Type=Box size=sm)",
+        "containerBorder": "{border-width.border} solid {color.base.border}",
+        "containerPadding": "{spacing.3}",
+        "containerRadius": "{border-radius.rounded-lg}",
+        "$tbdStep3": "Box-type cell not yet walked. Confirm padding-y + per-state border behavior."
+      }
+    },
+
+    "controlPlacement-axis": {
+      "$role": "Layout-only — flips item order in the horizontal container. No visual identity change.",
+      "Start": { "$order": "[track, fieldContent]" },
+      "End":   { "$order": "[fieldContent, track]" }
+    }
+  },
+
+  "animations": [
+    {
+      "$role": "Toggle thumb slide (active=Off ↔ active=On)",
+      "trigger": "ON_CLICK",
+      "action": {
+        "type": "CHANGE_VARIANT",
+        "axis": "active",
+        "transition": {
+          "type": "SMART_ANIMATE",
+          "duration": "150ms",
+          "easing": "ease-out",
+          "$tbdStep5": "Prototype interaction not yet walked. Estimated duration/easing per Apollo v2 motion taste (150-300ms ease-out per Button audit layer 2). Confirm via prototype.json extraction in Step 5."
+        }
+      },
+      "$animationDescription": "Thumb slides horizontally from left edge to right edge of inner-track. Concurrent: track fill transitions from input-dark-input-80 (gray) → base/primary (violet) — or base/destructive on Invalid.",
+      "motionReduce": {
+        "policy": "skip",
+        "$reason": "SP-9 v0.3.0: state-transition animations like Switch toggle should use `skip` policy under prefers-reduced-motion. Reduced-motion users see Off → On as an instant variant change (no slide). Slowing the slide to 4s (Spinner-style) would feel laggy. Freezing would lose information. `skip` preserves the state change while removing the motion."
+      }
+    }
+  ],
+
+  "composition": { "uses": [] },
+
+  "a11y": {
+    "role": "switch",
+    "$preferredElement": "<button role=\"switch\" aria-checked=\"...\">",
+    "ariaChecked": {
+      "Off": "false",
+      "On":  "true"
+    },
+    "focusRing": "{effect.focus-default} (or {effect.focus-destructive} on Invalid)",
+    "minTouchTarget": { "width": 44, "height": 44 },
+    "touchTargetCompliance": {
+      "compliant":    ["Type=Box (default 62h, sm 56h)"],
+      "nonCompliant": ["Type=Default (default 42h, sm 36h)"],
+      "$auditFinding": "32 of 64 cells (all Type=Default) fail WCAG 2.5.5. Type=Box meets it. Documented signal; not a bundle blocker. Recommend Type=Box for primary touch surfaces."
+    },
+    "ariaInvalid": {
+      "Invalid": "true",
+      "$comment": "Switch in Invalid state should emit aria-invalid=\"true\". Apollo v2 should pair the visual Invalid state with this ARIA attribute."
+    }
+  },
+
+  "codeConnect": {
+    "candidates": [
+      {
+        "framework": "react",
+        "library": "shadcn/ui",
+        "url": "https://ui.shadcn.com/docs/components/switch",
+        "$note": "shadcn Switch has variant=on/off mapped via `checked` prop; size axis not in shadcn baseline (Apollo v2 adds `sm` size). Type=Box also Apollo-specific."
+      }
+    ]
+  },
+
+  "$step1_token_findings": [
+    "39 tokens used; 17 NEW vs Button bundle (w-8, h-3, border-2, rounded-lg, font-weight/normal, 3 typography compounds, spacing/2-5 + spacing/3, opacity-50, base/foreground/border/ring, 3 custom alpha colors).",
+    "Switch uses opacity-50 for Disabled — Button uses tinted color. Cross-component DS inconsistency (Finding 8 candidate)."
+  ],
+
+  "$step2_known_gaps": [
+    {
+      "id": "GAP-S1",
+      "field": "Track height 18.4px raw, no token binding (Finding 9 candidate)",
+      "resolution": "Source-DS audit: add height/h-4-5 (18px) token OR document raw 18.4 as intentional"
+    },
+    {
+      "id": "GAP-S2",
+      "field": "size=sm track height not yet walked",
+      "resolution": "Walk cell 21136:10697 (sm/Off/Default/Default/Start)"
+    },
+    {
+      "id": "GAP-S3",
+      "field": "Type=Box cell details (padding-y, per-state border behavior)",
+      "resolution": "Walk cell 17119:18448 (default/Off/Default/Box/Start)"
+    },
+    {
+      "id": "GAP-S4",
+      "field": "Animation timing (duration + easing) on toggle transition",
+      "resolution": "Step 5 — extract prototype.json with interactions"
+    },
+    {
+      "id": "GAP-S5",
+      "field": "Per-state track-fill for On + state combinations",
+      "resolution": "Walk cells per state axis on active=On"
+    },
+    {
+      "id": "GAP-S6",
+      "field": "Container fixed widths (312/304/300/296) raw, not bound",
+      "resolution": "Source-DS audit: bind to width tokens OR document as intentional fixed sizes"
+    }
+  ],
+
+  "$spec_patches_validated": {
+    "v0.2.0": [
+      "SP-1 — whenVariant/whenSize filters not yet exercised (Switch slots labelText + descriptionText apply to all variants; no axis-conditional suppression)",
+      "SP-2 — variantConstraints empty array (no axis combinations forbidden)",
+      "SP-3 — n/a (no textDecoration usage in Switch)",
+      "SP-4 — $bindingStatus: hardcoded fires on track height (18.4px), container widths, padding-x: 1px",
+      "SP-5 — slots[].swapDefaults n/a (no Loading state)",
+      "SP-6 — codeConnect URL not yet verified (only 1 doc link)",
+      "SP-7 — Per-side padding + clipsContent: pending Step 3 walk (Type=Default has no padding so trivially fine; Type=Box has spacing/3 padding)",
+      "SP-8 — Nested-instance tokens: nothing nested at this depth (track + thumb are direct children, not INSTANCE refs)"
+    ],
+    "v0.3.0": [
+      "SP-4 extension — semantically-mismatched: not observed in Switch (no cross-axis token use yet)",
+      "SP-9 — APPLIED to animations[0].motionReduce. Toggle uses policy=skip (state-transition animation, not looping). Validates SP-9 policy enum across both `slow` (Button Spinner) and `skip` (Switch toggle)."
+    ]
+  }
+}
