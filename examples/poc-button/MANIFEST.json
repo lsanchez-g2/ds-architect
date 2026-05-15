@@ -1,6 +1,6 @@
 {
   "$schema": "../../BUNDLE_SPEC.md#section-3",
-  "bundleVersion": "0.2.0",
+  "bundleVersion": "0.3.0",
   "bundleId": "apollo-v2-button-bundle-poc",
   "bundleStatus": "proof-of-concept",
   "bundleScope": "single-component (Button) — partial cell coverage",
@@ -26,17 +26,19 @@
 
   "spec": {
     "name": "BUNDLE_SPEC.md",
-    "version": "0.2.0",
-    "status": "LOCKED for atom phase",
+    "version": "0.3.0",
+    "status": "v0.2.0 LOCKED for atom phase + v0.3.0 DRAFT (additive)",
     "patches": [
       "SP-1 exposedProps whenVariant/whenSize filters",
       "SP-2 variantConstraints.disabledProps",
       "SP-3 textDecoration captured independent of typography token",
       "SP-4 $bindingStatus per bindable property",
+      "SP-4 extension (v0.3.0): $bindingStatus gains 'semantically-mismatched' value for cross-axis token bindings",
       "SP-5 slots[].swapDefaults map per (variant,state)",
       "SP-6 codeConnect.quality.perVariantUrlVerified + verificationFailures[]",
       "SP-7 clipsContent always emitted + bindings.size all 7 fields mandatory",
-      "SP-8 tokens extractor unions nested-INSTANCE variable refs"
+      "SP-8 tokens extractor unions nested-INSTANCE variable refs",
+      "SP-9 (v0.3.0): motionReduce policy on animation declarations"
     ]
   },
 
@@ -70,8 +72,8 @@
     "algorithm": "sha256",
     "files": {
       "data/tokens.json":                                    { "sha256": "b398cf95093644716532b206d53143d622a2ebe3752ae2eb3d484d25b3a3d633", "bytes": 23753 },
-      "data/components/Button.component.json":               { "sha256": "f60424ce7a19a584e47ca97ba59cbe3fa256921de6f41946afe51b4567df11c4", "bytes": 23655 },
-      "data/components/Button.variants-samples.json":        { "sha256": "d730843441a596f077b52e24b688d50f82d8882a79734bf8e55b142662785f5b", "bytes": 19838 },
+      "data/components/Button.component.json":               { "sha256": "5e7cfa93940154e7e5ccc2c2d2318084cba8bad155878878c43699b58dfbd8a0", "bytes": 25942 },
+      "data/components/Button.variants-samples.json":        { "sha256": "b9c2564b7831239d077c4fac00e333a97c8606b6e80325ced74c6fc91439d321", "bytes": 20494 },
       "data/icons/_index.json":                              { "sha256": "00d5c0d55e7051a80fa5007b00bd60d96ae20911a9112b11456fbb73c27af609", "bytes": 5904 },
       "assets/icons/circle-arrow-left.svg":                  { "sha256": "795b52312b9c372669fd98b19dbacec54b8f55e2b925a76e5d824f4e01ca75f5", "bytes": 385 },
       "assets/icons/arrow-right.svg":                        { "sha256": "66ba81bd6d1b1bd271f368b185e52e7176b3d8f7a4961d8b22e190649567af11", "bytes": 343 },

@@ -1,6 +1,6 @@
 {
   "$schema": "../../../../BUNDLE_SPEC.md#section-6.2",
-  "$bundleSchemaVersion": "0.2.0",
+  "$bundleSchemaVersion": "0.3.0",
 
   "id": "btn",
   "name": "Button",
@@ -69,14 +69,25 @@
       "swapPreferred": "Lucide Icons/*",
       "iconSetMarker": "{icon-set.lucide-icons}",
       "swapDefaults": {
-        "$comment": "SP-5 v0.2.0: state=Loading replaces user-controllable leftIcon with a fixed Spinner instance (Lucide LoaderCircle, animated).",
+        "$comment": "SP-5 v0.2.0: state=Loading replaces user-controllable leftIcon with a fixed Spinner instance (Lucide LoaderCircle, animated). SP-9 v0.3.0: animation block carries explicit motionReduce policy.",
         "state=Loading": {
           "library": "Local",
           "icon": "Spinner",
           "componentRef": "Spinner",
           "innerIcon": { "library": "Lucide Icons", "icon": "LoaderCircle" },
-          "animation": "spin",
           "exposedBy": null,
+          "animation": {
+            "name": "spin",
+            "duration": "1s",
+            "easing": "linear",
+            "iterations": "infinite",
+            "delay": "0s",
+            "motionReduce": {
+              "policy": "slow",
+              "duration": "4s",
+              "$reason": "Freezing the spinner would make Loading visually identical to Default — bad UX. Slow rotation preserves activity signal at reduced motion intensity. Default per BUNDLE_SPEC.md §6.4 SP-9 recommendation for Loading-state spinners."
+            }
+          },
           "$reason": "Loading state hides showLeftIcon from the prop interface and always renders the spinner."
         }
       }
@@ -154,6 +165,8 @@
         "padding-y":  "{spacing.2}",
         "gap":        "{spacing.1-5}",
         "iconSize":   "{height.h-4}",
+        "$iconSizeBindingStatus": "semantically-mismatched",
+        "$iconSizeBindingMismatchNote": "Cell binds iconSize to {height.h-4} (16px); the semantically correct token is {width.w-4} (also 16px). Source-DS fix: rebind to width axis. See token-rebinding-proposal.md §3.1. (SP-4 extension v0.3.0)",
         "$confirmed": "Walked cells 37:930, 37:932, 37:1477. Per-side asymmetric padding: 8 top/bottom + 32 left/right (SP-7)."
       },
       "sm": {
@@ -184,12 +197,14 @@
         "height":     "{height.h-11}",
         "width":      "44px",
         "$widthBindingStatus": "hardcoded",
-        "$widthAuditFinding": "Should bind to {width.w-11} but Apollo v2 emits raw 44px. SP-4 flag. Source DS should bind.",
+        "$widthAuditFinding": "Should bind to {width.w-11} but Apollo v2 emits raw 44px. SP-4 flag. Source DS should bind. See token-rebinding-proposal.md §3.2.",
         "padding-x":  "0px",
         "padding-y":  "0px",
         "gap":        null,
         "typography": null,
         "iconSize":   "{height.h-4}",
+        "$iconSizeBindingStatus": "semantically-mismatched",
+        "$iconSizeBindingMismatchNote": "Cell binds iconSize to {height.h-4} (16px); the semantically correct token is {width.w-4} (also 16px). Rebind to width axis. (SP-4 extension v0.3.0)",
         "$constraint":"icon-only — no label slot; single fixed icon. Confirmed via cell 46:189."
       },
       "icon-xs": {
@@ -213,14 +228,15 @@
         "gap":        null,
         "typography": null,
         "iconSize":   "{height.h-4}",
-        "$iconSizeBindingStatus": "partial",
+        "$iconSizeBindingStatus": "semantically-mismatched",
+        "$iconSizeBindingMismatchNote": "Cell binds iconSize to {height.h-4} (16px); the semantically correct token is {width.w-4} (also 16px). (SP-4 extension v0.3.0)",
         "$confirmed": "Walked cell 18672:198807 (GAP-1 closure). iconSize raw 16px; matches {height.h-4} but cell-level binding absent."
       },
       "icon-lg": {
         "height":     "{height.h-12}",
         "width":      "{height.h-12}",
-        "$widthBindingStatus": "bound-via-height-token",
-        "$widthNote": "Apollo v2 sets icon-lg width via h-12 token reference rather than declaring it raw or via a w-* token. Anomaly vs other icon-* sizes which hardcode width.",
+        "$widthBindingStatus": "semantically-mismatched",
+        "$widthBindingMismatchNote": "Apollo v2 lacks a width.w-12 token at 48px. Height token used cross-axis. Renderer may ignore the mismatch (values are correct); audit tooling MUST surface it because the binding will drift if {height.h-12} later changes independently. Source-DS fix: add width.w-12 + rebind. See token-rebinding-proposal.md §3.2. (SP-4 extension v0.3.0)",
         "padding-x":  "0px",
         "padding-y":  "0px",
         "gap":        null,
@@ -442,6 +458,14 @@
       "SP-6: codeConnect.quality.perVariantUrlVerified + verificationFailures[]",
       "SP-7: clipsContent always emitted; bindings.size all 7 fields mandatory",
       "SP-8: nested-instance token scope (Kbd → 5 tokens backfilled)"
+    ]
+  },
+
+  "$spec_patches_v0_3_0": {
+    "$status": "APPLIED to BUNDLE_SPEC.md v0.3.0 — see §17 changelog. Additive, backward-compatible.",
+    "$summary": [
+      "SP-4 extension: $bindingStatus enum gains 'semantically-mismatched' (token bound but wrong axis). Applied to: bindings.size.default.iconSize, bindings.size.icon.iconSize, bindings.size.icon-sm.iconSize, bindings.size.icon-lg.width — all 4 cases use {height.h-*} where {width.w-*} would be semantically correct.",
+      "SP-9: motionReduce policy on animation declarations. Applied to: slots[name=leftIcon].swapDefaults['state=Loading'].animation.motionReduce — Loading Spinner declares policy=slow, duration=4s, with explanation."
     ]
   }
 }

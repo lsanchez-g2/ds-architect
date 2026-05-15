@@ -1,6 +1,6 @@
 {
   "$schema": "../../../../BUNDLE_SPEC.md#section-6.3",
-  "$bundleSchemaVersion": "0.2.0",
+  "$bundleSchemaVersion": "0.3.0",
   "componentId": "btn",
   "variantCount": 264,
   "$samplesOnly": true,
@@ -206,7 +206,7 @@
               "constraints": { "horizontal": "MIN", "vertical": "CENTER" }
             },
             "$slotOrigin": "swapDefault.state=Loading",
-            "$slotComment": "Per SP-5: Loading state replaces user-controllable leftIcon slot with a fixed Spinner instance. Hides showLeftIcon from the prop interface.",
+            "$slotComment": "Per SP-5: Loading state replaces user-controllable leftIcon slot with a fixed Spinner instance. Hides showLeftIcon from the prop interface. SP-9 (v0.3.0): animation block carries motionReduce policy.",
             "mainComponent": {
               "figmaKey": "18665:25956",
               "name": "Spinner",
@@ -217,7 +217,18 @@
               "name": "LoaderCircle",
               "figmaKey": "5197:3626"
             },
-            "animation": "spin"
+            "animation": {
+              "name": "spin",
+              "duration": "1s",
+              "easing": "linear",
+              "iterations": "infinite",
+              "delay": "0s",
+              "motionReduce": {
+                "policy": "slow",
+                "duration": "4s",
+                "$reason": "Freezing the spinner would make Loading visually identical to Default — bad UX. Slow rotation preserves activity signal at reduced motion intensity. (SP-9 v0.3.0)"
+              }
+            }
           },
 
           {
@@ -424,7 +435,8 @@
           "background-color: #4a2ba3 (primary-hover, NOT primary)",
           "color: #ffffff",
           "border-radius: 9999px",
-          "spinner child as first node, 16x16, Lucide LoaderCircle, animated"
+          "spinner child as first node, 16x16, Lucide LoaderCircle, animated 1s linear infinite",
+          "prefers-reduced-motion: rotation slowed to 4s per SP-9 motionReduce.policy=slow"
         ],
         "expectVisual": "Darker violet pill (~146px wide due to spinner), white spinner icon, white 'Button' label, aria-busy=true."
       },
