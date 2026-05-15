@@ -145,34 +145,46 @@
         "gap":        "{spacing.1}",
         "iconSize":   "12px",
         "$iconSizeBindingStatus": "hardcoded",
-        "$confirmed": "Walked cell 21114:109812. iconSize is 12px raw (no width/w-3 binding visible). Flag for source DS to bind."
+        "$confirmed": "Walked cell 21114:109812. iconSize is 12px raw (no width/w-3 binding visible). Flag for source DS to bind to {width.w-3}."
       },
       "default": {
         "height":     "{height.h-11}",
         "typography": "{typography.text-lg-leading-normal-semibold}",
         "padding-x":  "{spacing.8}",
-        "padding-y":  "{spacing.8}",
+        "padding-y":  "{spacing.2}",
         "gap":        "{spacing.1-5}",
         "iconSize":   "{height.h-4}",
-        "$confirmed": "Walked cells 37:930, 37:932, 37:1477."
+        "$confirmed": "Walked cells 37:930, 37:932, 37:1477. Per-side asymmetric padding: 8 top/bottom + 32 left/right (SP-7)."
       },
       "sm": {
         "height":     "{height.h-10}",
-        "typography": "{typography.text-sm-leading-normal-semibold}",
-        "$tbdStep3":  ["padding-x", "padding-y", "iconSize", "gap"],
-        "$pattern":   "Likely follows xs ↔ default interpolation: padding ~{spacing.4}-{spacing.8}, gap {spacing.1-5}, iconSize {height.h-4}. Confirm via cell 37:1616."
+        "typography": "{typography.text-base-leading-normal-semibold}",
+        "$typographyNote": "Apollo v2 maps size=sm to text-BASE (16/24), not text-sm (14/20) as initially assumed. Walked cell 37:1616.",
+        "padding-x":  "{spacing.6}",
+        "padding-y":  "{spacing.2}",
+        "gap":        "{spacing.1}",
+        "iconSize":   "14px",
+        "$iconSizeBindingStatus": "hardcoded",
+        "$iconSizeAuditFinding": "Apollo v2 has no width/w-* token at 14px. Either add w-3-5 (14px) OR rebind to closest existing token.",
+        "$confirmed": "Walked cell 37:1616 (GAP-1 closure)."
       },
       "lg": {
         "height":     "{height.h-12}",
-        "typography": "{typography.text-lg-leading-normal-semibold}",
-        "$tbdStep3":  ["padding-x", "padding-y", "iconSize", "gap"],
-        "$pattern":   "Likely scales padding/gap proportionally. Confirm via cell 37:1658."
+        "typography": "{typography.text-xl-leading-normal-semibold}",
+        "$typographyNote": "Apollo v2 maps size=lg to text-XL (20/28), not text-lg (18/28) as initially assumed. Walked cell 37:1658.",
+        "padding-x":  "{spacing.12}",
+        "padding-y":  "{spacing.2}",
+        "gap":        "{spacing.1-5}",
+        "iconSize":   "{height.h-4}",
+        "$iconSizeBindingStatus": "partial",
+        "$iconSizeNote": "Cell emits raw 16px not bound to a token in the cell tree. {height.h-4} is the matching token. Source-DS should explicitly bind.",
+        "$confirmed": "Walked cell 37:1658 (GAP-1 closure)."
       },
       "icon": {
         "height":     "{height.h-11}",
         "width":      "44px",
         "$widthBindingStatus": "hardcoded",
-        "$widthAuditFinding": "Should bind to {width.w-11} but Apollo v2 emits raw 44px. SP-4 v0.2.0 flag. Source DS should bind.",
+        "$widthAuditFinding": "Should bind to {width.w-11} but Apollo v2 emits raw 44px. SP-4 flag. Source DS should bind.",
         "padding-x":  "0px",
         "padding-y":  "0px",
         "gap":        null,
@@ -190,7 +202,7 @@
         "typography": null,
         "iconSize":   "12px",
         "$iconSizeBindingStatus": "hardcoded",
-        "$tbdStep3":  []
+        "$confirmed": "Walked cell 21114:109936 (GAP-1 closure)."
       },
       "icon-sm": {
         "height":     "{height.h-10}",
@@ -201,18 +213,22 @@
         "gap":        null,
         "typography": null,
         "iconSize":   "{height.h-4}",
-        "$tbdStep3":  []
+        "$iconSizeBindingStatus": "partial",
+        "$confirmed": "Walked cell 18672:198807 (GAP-1 closure). iconSize raw 16px; matches {height.h-4} but cell-level binding absent."
       },
       "icon-lg": {
         "height":     "{height.h-12}",
         "width":      "{height.h-12}",
-        "$widthBindingStatus": "$tbdStep3",
+        "$widthBindingStatus": "bound-via-height-token",
+        "$widthNote": "Apollo v2 sets icon-lg width via h-12 token reference rather than declaring it raw or via a w-* token. Anomaly vs other icon-* sizes which hardcode width.",
         "padding-x":  "0px",
         "padding-y":  "0px",
         "gap":        null,
         "typography": null,
-        "iconSize":   "{height.h-4}",
-        "$tbdStep3":  []
+        "iconSize":   "{width.w-6}",
+        "$iconSizeBindingStatus": "partial",
+        "$iconSizeNote": "Cell emits raw 24px; matches {width.w-6} or {height.h-6} but cell-level binding absent. NOTE: icon-lg uses LARGER icon (24px) than icon (16px) — non-uniform iconSize scaling.",
+        "$confirmed": "Walked cell 18672:202554 (GAP-1 closure)."
       },
       "Link-xs": {
         "height": "24px",
@@ -271,7 +287,19 @@
       "Default":     { "$all": "none" },
       "Secondary":   { "$all": "none" },
       "Destructive": { "$all": "none" },
-      "Outline":     { "color": "{color.base.primary}", "width": "{border-width.border}", "style": "solid", "$tbdStep3": "Verify border color per state (likely shifts on Disabled)." },
+      "Outline":     {
+        "width": "{border-width.border}",
+        "style": "solid",
+        "color": {
+          "Default":  "{color.base.primary}",
+          "Hover":    "{color.base.primary}",
+          "Focus":    "{color.base.primary}",
+          "Loading":  "{color.base.primary}",
+          "Disabled": "{color.base.muted-foreground}",
+          "Pressed":  "{color.base.primary}",
+          "$confirmed": "GAP-5 closed via cell 112:1310 (Outline/default/Disabled). Disabled border = muted-foreground, NOT primary nor primary-disabled."
+        }
+      },
       "Ghost":       { "$all": "none" },
       "Link":        { "$all": "none" }
     },
@@ -280,7 +308,7 @@
       "Default":     { "Default": "{color.base.primary-foreground}",     "Hover": "{color.base.primary-hover-foreground}",     "Focus": "{color.base.primary-foreground}",     "Loading": "{color.base.primary-foreground}",     "Disabled": "{color.base.primary-disabled-foreground}",     "Pressed": "{color.base.primary-active-foreground}" },
       "Secondary":   { "Default": "{color.base.secondary-foreground}",   "Hover": "{color.base.secondary-hover-foreground}",   "Focus": "{color.base.secondary-foreground}",   "Loading": "{color.base.secondary-foreground}",   "Disabled": "{color.base.secondary-disabled-foreground}",   "Pressed": "{color.base.secondary-active-foreground}" },
       "Destructive": { "Default": "{color.base.destructive-foreground}", "Hover": "{color.base.destructive-hover-foreground}", "Focus": "{color.base.destructive-foreground}", "Loading": "{color.base.destructive-foreground}", "Disabled": "{color.base.destructive-disabled-foreground}", "Pressed": "{color.base.destructive-active-foreground}" },
-      "Outline":     { "Default": "{color.base.primary}", "Hover": "{color.base.accent-foreground}", "Focus": "{color.base.primary}", "Loading": "{color.base.primary-hover}", "Disabled": "{color.base.primary-disabled}", "Pressed": "{color.base.accent-foreground}", "$tbdStep3": "Inferred — verify per cell." },
+      "Outline":     { "Default": "{color.base.primary}", "Hover": "{color.base.accent-foreground}", "Focus": "{color.base.primary}", "Loading": "{color.base.primary-hover}", "Disabled": "{color.base.muted-foreground}", "Pressed": "{color.base.accent-foreground}", "$confirmedDisabled": "GAP-5 closed via cell 112:1310 — Disabled text-color = muted-foreground (matches Disabled border color)." },
       "Ghost":       { "Default": "{color.base.primary}", "Hover": "{color.base.accent-foreground}", "Focus": "{color.base.primary}", "Loading": "{color.base.primary-hover}", "Disabled": "{color.base.primary-disabled}", "Pressed": "{color.base.accent-foreground}", "$tbdStep3": "Inferred — verify per cell." },
       "Link":        { "Default": "{color.base.primary}", "Hover": "{color.base.primary-hover}", "Focus": "{color.base.primary}", "Loading": "{color.base.primary-hover}", "Disabled": "{color.base.primary-disabled}", "Pressed": "{color.base.primary-active}", "$tbdStep3": "Inferred — verify per cell." }
     },
@@ -368,8 +396,8 @@
   "$step2_known_gaps": [
     {
       "id": "GAP-1",
-      "field": "bindings.size.*.padding-x / padding-y / iconSize / gap for xs, sm, lg, icon-*",
-      "resolution": "Step 3 sample-walk closed xs/default/icon. sm/lg/icon-xs/icon-sm/icon-lg flagged $tbdStep3 in the bindings.size map; close in full-extraction pass."
+      "field": "bindings.size.*.padding-x / padding-y / iconSize / gap for sm, lg, icon-xs, icon-sm, icon-lg",
+      "resolution": "CLOSED (2026-05-15 post-smoke-test-3). Walked cells 37:1616 (sm), 37:1658 (lg), 21114:109936 (icon-xs), 18672:198807 (icon-sm), 18672:202554 (icon-lg). All size-axis sub-bindings now resolved. Discovered: sm uses text-base typography (not text-sm), lg uses text-xl (not text-lg), icon-lg uses 24px icon (not 16px). Surprise mappings logged inline."
     },
     {
       "id": "GAP-2",
@@ -389,12 +417,17 @@
     {
       "id": "GAP-5",
       "field": "Border behavior on Outline Disabled (does border color shift to disabled token?)",
-      "resolution": "Open. Defer to full-extraction pass (cell 112:1310 not walked)."
+      "resolution": "CLOSED (2026-05-15). Cell 112:1310 walked. Outline Disabled: border AND text both use {color.base.muted-foreground} (#737373). Background stays at default custom/background-dark-input-30. Patched bindings.border.Outline.color per-state map + bindings.text-color.Outline.Disabled."
     },
     {
       "id": "GAP-6",
       "field": "Per-cell clipsContent — only Default variant had overflow-clip in sampled cells.",
       "resolution": "v0.2.0 spec patched (SP-7): clipsContent MUST be emitted on every container node. Per-cell true/false captured in variants.json."
+    },
+    {
+      "id": "GAP-7",
+      "field": "iconSize hardcoded on multiple sizes (12px on xs/icon-xs, 14px on sm, 16px on default/sm/lg/icon-sm, 24px on icon-lg)",
+      "resolution": "OPEN. Apollo v2 has {width.w-3}=12, {width.w-4}=16, {width.w-6}=24 tokens. iconSize emits raw px not via these tokens. Audit Finding 4 candidate — see audit-findings-for-source.md for action (not a bundle gap; source-DS-side fix)."
     }
   ],
 

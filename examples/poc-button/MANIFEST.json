@@ -70,7 +70,7 @@
     "algorithm": "sha256",
     "files": {
       "data/tokens.json":                                    { "sha256": "b398cf95093644716532b206d53143d622a2ebe3752ae2eb3d484d25b3a3d633", "bytes": 23753 },
-      "data/components/Button.component.json":               { "sha256": "4bbdc77843810b808b05d002e9ac477b412382e39cb710026be3f2b3f15338fd", "bytes": 20896 },
+      "data/components/Button.component.json":               { "sha256": "f60424ce7a19a584e47ca97ba59cbe3fa256921de6f41946afe51b4567df11c4", "bytes": 23655 },
       "data/components/Button.variants-samples.json":        { "sha256": "d730843441a596f077b52e24b688d50f82d8882a79734bf8e55b142662785f5b", "bytes": 19838 },
       "data/icons/_index.json":                              { "sha256": "00d5c0d55e7051a80fa5007b00bd60d96ae20911a9112b11456fbb73c27af609", "bytes": 5904 },
       "assets/icons/circle-arrow-left.svg":                  { "sha256": "795b52312b9c372669fd98b19dbacec54b8f55e2b925a76e5d824f4e01ca75f5", "bytes": 385 },

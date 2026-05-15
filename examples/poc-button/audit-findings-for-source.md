@@ -147,6 +147,58 @@ Apollo v2 currently has `width/w-3, w-4, w-6, w-11` but not w-9/w-10/w-12. Addin
 
 ---
 
+## Finding 4 (MEDIUM IMPACT) — iconSize is hardcoded raw across most Button sizes
+
+### Symptom
+
+Every Button size emits its `iconSize` (the size of the leftIcon / rightIcon / Spinner placeholder) as a raw pixel value, NOT bound to a width token.
+
+### Evidence
+
+Cell walks (PoC Step 3 + GAP-1 closure walks):
+
+| Size | iconSize emitted | Closest Apollo v2 token |
+|---|---|---|
+| xs       | 12px raw | `{width.w-3}` (12px) |
+| sm       | 14px raw | none — closest match would be a new `w-3-5` token |
+| default  | 16px raw* | `{width.w-4}` (16px) or `{height.h-4}` (16px) — **partially bound** in some cells via `size-[var(--height/h-4)]` |
+| lg       | 16px raw | `{width.w-4}` or `{height.h-4}` |
+| icon     | 16px raw | same |
+| icon-xs  | 12px raw | `{width.w-3}` |
+| icon-sm  | 16px raw | `{width.w-4}` or `{height.h-4}` |
+| icon-lg  | **24px raw** | `{width.w-6}` (24px) or `{height.h-6}` (24px) |
+
+`*` Size=default sometimes binds via `{height.h-4}` indirectly (when slot CSS uses `size-[var(--height/h-4)]`). Other sizes emit raw `size-[12px]` / `size-[14px]` / `size-[24px]`.
+
+### Impact
+
+- **Token system half-applied.** Apollo v2 ships `width.w-3`, `w-4`, `w-6` exactly for these icon sizes, but the Button component doesn't reference them.
+- **Audit signal that pairs with Finding 2.** Both are the same class of issue: dimensional values that should be tokens but aren't.
+- **Maintenance burden.** If icon scaling decisions later change (e.g. "all icons in buttons should be 18px now"), 8 cells need editing instead of one token.
+- **Inconsistent scale:** icon-lg jumps to 24px while icon-default stays at 16px. May be intentional ("bigger button = bigger icon") but should be encoded as a token relationship (`{height.h-6}` for icon-lg), not raw px.
+
+### Recommended fix
+
+Per cell, bind iconSize to the matching existing token:
+
+```
+xs       → {width.w-3}  (12px)  [existing]
+default  → {width.w-4}  (16px)  [existing]
+lg       → {width.w-4}  (16px)  [existing]
+icon     → {width.w-4}  (16px)  [existing]
+icon-xs  → {width.w-3}  (12px)  [existing]
+icon-sm  → {width.w-4}  (16px)  [existing]
+icon-lg  → {width.w-6}  (24px)  [existing]
+```
+
+For `sm` (14px): either add `width.w-3-5` (14px) token, OR snap to existing `w-3` (12px) or `w-4` (16px) — design decision.
+
+### Bundle / extractor benefit
+
+`BUNDLE_SPEC.md` v0.2.0 SP-4 `$bindingStatus` flagged this automatically across all walked cells. Without SP-4, this finding would have been invisible until a developer noticed during code review.
+
+---
+
 ## Finding 3 (LOW IMPACT) — Link variant Figma documentationLink has wrong fragment
 
 ### Symptom
@@ -189,6 +241,7 @@ In Figma, edit `Button` variant=Link `documentationLink` from `#ghost` → `#lin
 | 1 | HIGH | Button.Link unusable inline (18px semibold vs body 16px regular) | Add `InlineLink` component (preferred) OR add `size=inline` to Button.Link |
 | 2 | MEDIUM | Icon-size widths hardcoded (`44px` etc.) instead of bound to `width/w-*` tokens | Bind icon-size widths to existing or new `width/w-*` tokens |
 | 3 | LOW | Link variant documentationLink points to `#ghost` not `#link` | Edit URL fragment in Figma |
+| 4 | MEDIUM | iconSize hardcoded raw across multiple Button sizes (12/14/16/24 px) instead of binding to `width.w-3/w-4/w-6` tokens | Bind iconSize on cells xs/sm/default/lg/icon/icon-xs/icon-sm/icon-lg to width tokens; add `w-3-5` (14px) token if needed for size=sm |
 
 All three are real issues in the source DS — not bundle or extractor bugs. The PoC working as designed surfaced them. Ship the fixes when bandwidth allows (post-OOO).
 

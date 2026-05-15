@@ -75,10 +75,12 @@ Report saved at `verification/claude-design-skill-load-test.md` + `verification/
 
 | Gap | Affects | Resolution |
 |---|---|---|
-| GAP-1 | size=sm/lg + icon-xs/icon-sm/icon-lg padding/gap/iconSize bindings | Walk cells `37:1616`, `37:1658`, etc. |
-| GAP-5 | Outline Disabled border color | Walk cell `112:1310` |
+| GAP-1 | size=sm/lg + icon-xs/icon-sm/icon-lg padding/gap/iconSize bindings | **CLOSED 2026-05-15** — 5 cells walked (37:1616, 37:1658, 21114:109936, 18672:198807, 18672:202554). All sub-bindings resolved. Surprise mappings logged: sm→text-base (not text-sm); lg→text-xl (not text-lg); icon-lg→24px icon (not 16px). |
+| GAP-5 | Outline Disabled border color | **CLOSED 2026-05-15** — cell 112:1310 walked. Outline Disabled: border + text both use `{color.base.muted-foreground}` (#737373). Patched bindings.border.Outline.color (per-state map) + bindings.text-color.Outline.Disabled. |
 
-Closing these unlocks full Tier-2 resolution for the remaining 261 cells.
+**New audit signal surfaced during closure:** GAP-7 / Finding 4 (MEDIUM) — iconSize hardcoded raw across most Button sizes (12/14/16/24px) instead of binding to existing `width.w-3/w-4/w-6` tokens. Logged to `audit-findings-for-source.md` for source-DS action.
+
+Tier-2 resolution now unblocked for the remaining 261 cells. Re-running smoke-test #3 Prompts 2 + 3 should now produce full renders (no `$tbdStep3` refusals).
 
 **Schema features validated end-to-end:**
 
