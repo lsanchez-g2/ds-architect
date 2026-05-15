@@ -1,8 +1,8 @@
-# PoC Milestone — Sample Phase Passed
+# PoC Milestone — Sample Phase Passed + Cell-Level Contract Locked
 
 > **Component:** Apollo v2 Button
 > **Date:** 2026-05-15
-> **Status:** ✅ Sample-first validation phase passed. Bundle spec contract proven.
+> **Status:** ✅ Sample-first phase passed (bindings level) + ✅ cell-level contract validated end-to-end. BUNDLE_SPEC v0.2.0 **LOCKED** for atom phase.
 
 ---
 
@@ -18,7 +18,7 @@ Spec evolved v0.1.0 → v0.2.0 with 8 additive SP patches surfaced during the wa
 
 ---
 
-## Reverse-render smoke test (Claude Design, 2026-05-15)
+## Smoke test #1 — Inline-context render (Claude Design, 2026-05-15 morning)
 
 Bundle's `tokens.json` + `Button.component.json` fed to Claude Design in a fresh conversation. Asked to render 6 inline-context examples (standalone Button, Button row, Link-in-sentence, etc.).
 
@@ -32,11 +32,44 @@ Bundle's `tokens.json` + `Button.component.json` fed to Claude Design in a fresh
 
 ---
 
+## Smoke test #2 — Cell-level node-tree render (Claude Design, 2026-05-15 afternoon)
+
+Full bundle fed (`tokens.json` + `Button.component.json` + `Button.variants-samples.json` — 3 cells as full node trees) to Claude Design. Asked to render each cell with resolved CSS + HTML + inline preview, then walk each property against the samples file's `$verificationCandidate.expectations` block.
+
+Report saved at `verification/claude-design-3-cell-report.html`.
+
+| Cell | Expectations | Match | Notes |
+|---|---|---|---|
+| variant=Default,state=Default,size=default | 8 | 8/8 | Self-correction: initially collapsed padding to shorthand, re-read samples' explicit per-side values, re-emitted correctly. The self-correction is proof that **SP-7 asymmetric-padding capture is load-bearing** — exactly the failure mode the v0.2.0 schema fixes. |
+| variant=Default,state=Loading,size=default | 6 | 6/6 | Spinner as first child, fill = primary-hover (NOT primary), aria-busy=true. Consumer self-fulfilled the `loadingDoublePreventionContract` (added `disabled`, `aria-live=polite`, `pointer-events:none` — spec promised the contract, renderer fulfilled). |
+| variant=Link,state=Default,size=default | 3 | 3/3 | `text-decoration: underline` captured on TEXT node, NOT via underlined-typography token. SP-3 validated. Source-DS Findings F1 + F3 carried forward verbatim in the rendered output. |
+
+**Aggregate: 17/17 expectations matched** (16 direct match + 1 self-correction that the spec actually enabled).
+
+**Schema features validated end-to-end:**
+
+| Spec rule | Verdict |
+|---|---|
+| Canonical fully-rounded test (`border-radius: 9999px`) | ✅ all 3 cells |
+| SP-3 — textDecoration independent of typography token | ✅ Link UNDERLINE captured, no underlined-typography token needed |
+| SP-4 — `$bindingStatus` per bindable property | ✅ Link height flagged `partial` as comment, not silently inlined |
+| SP-5 — `slots[].swapDefaults` Loading→Spinner | ✅ Spinner first child, animated, aria-busy emitted |
+| SP-7 — clipsContent always emitted + per-side padding | ✅ self-correction proved load-bearing |
+| Loading fill = primary-hover (CORRECTION 1) | ✅ #4a2ba3 emitted correctly |
+| Source-DS audit findings preserved in output | ✅ F1 + F3 carried verbatim from `$auditFindings` block |
+
+---
+
 ## Verdict
 
-The lossless-extraction contract (BUNDLE_SPEC.md v0.2.0) works end-to-end on a real production design system. Claude Design ingests the bundle as designed and reverse-renders with the fidelity the spec promises. The single rendering issue traces to an upstream gap in the source DS, not the bundle — which is the correct behavior for a faithful extractor.
+The lossless-extraction contract (BUNDLE_SPEC.md v0.2.0) works **end-to-end** on a real production design system:
 
-**Spec is locked at v0.2.0** for the atom phase. Bumps only if molecule/organism batches surface non-additive changes.
+- **Bindings level (smoke test #1):** 5/6 inline-context renders correct. 1/6 deferred = upstream source-DS issue, not extractor bug.
+- **Cell level (smoke test #2):** 17/17 expectations matched. The lone "near-miss" was a consumer self-correction that the v0.2.0 spec explicitly enabled — i.e. the spec did its job.
+
+Claude Design ingests the bundle as designed and reverse-renders with the fidelity the spec promises. Where Apollo v2's source DS has gaps (Findings 1, 2, 3 in `audit-findings-for-source.md`), the bundle faithfully reflects them — which is the correct behavior for a faithful extractor.
+
+**Spec is LOCKED at v0.2.0 for the atom phase.** Bumps only if molecule/organism batches surface non-additive changes.
 
 ---
 

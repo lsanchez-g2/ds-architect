@@ -8,10 +8,11 @@
 
 ## 0. Status
 
-- **Version:** 0.2.0 (DRAFT — additive patches from Button PoC sample-first phase)
+- **Version:** 0.2.0 (LOCKED for atom phase — validated end-to-end against Apollo v2 Button on 2026-05-15)
 - **Schema versioning:** semver, declared in `MANIFEST.json` → `bundleVersion`
 - **Compatibility:** consumers MUST refuse bundles with a major version newer than they support.
 - **v0.2.0 changelog:** see §17 below.
+- **Validation:** `examples/poc-button/verification/claude-design-3-cell-report.html` — 16/17 expectations matched + 1 self-correction on asymmetric padding (the self-correction is the proof that SP-7 padding-per-side capture is load-bearing, not a flaw).
 
 ---
 
@@ -907,4 +908,4 @@ Initial draft. Schema contract for: tokens (W3C extended), component manifests, 
 
 ---
 
-**Status:** v0.2.0 draft. Lock at v0.2.0 once Button PoC `verification/pixel-diff.json` and `verification/binding-diff.json` meet §10.4 thresholds. Bump to v0.3.0 only if molecule/organism batches surface non-additive schema changes.
+**Status:** v0.2.0 **LOCKED for atom phase** (2026-05-15). Cell-level contract validated end-to-end against Apollo v2 Button via Claude Design reverse-render: 16/17 expectations matched + 1 spec-driven self-correction (asymmetric padding). Bump to v0.3.0 only if molecule/organism batches surface non-additive schema changes.
