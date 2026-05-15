@@ -1,0 +1,136 @@
+{
+  "$schema": "../../../../BUNDLE_SPEC.md#section-7.1",
+  "$bundleSchemaVersion": "0.2.0",
+  "$metadata": {
+    "source": {
+      "fileKey": "3401ZFUHoboOwA6GGjAEsq",
+      "scope": "Icons used by Button (node 37:931) + its nested Spinner instance"
+    },
+    "iconSet": {
+      "name": "Lucide Icons",
+      "version": "lucide-static@1.16.0",
+      "license": "ISC",
+      "source": "https://unpkg.com/lucide-static@1.16.0/icons/",
+      "marker": "{icon-set.lucide-icons}",
+      "$comment": "Apollo v2's `Lucide Icons` boolean token marker (in tokens.json) declares the icon-set source. SVGs in assets/icons/ are stock Lucide — no customizations detected during PoC. If Apollo ever customizes a Lucide icon, the bundle MUST emit a Figma-extracted SVG override and flag $extensions.customized: true."
+    }
+  },
+
+  "icons": [
+    {
+      "id": "icon-circle-arrow-left",
+      "name": "icon/circle-arrow-left",
+      "semantic": "circle-arrow-left",
+      "svg": "assets/icons/circle-arrow-left.svg",
+      "viewBox": "0 0 24 24",
+      "defaultSize": "{height.h-4}",
+      "$defaultSizeFallback": "16px",
+      "license": "ISC (lucide-static v1.16.0)",
+      "monochrome": true,
+      "renderColor": "currentColor",
+      "$renderColorNote": "SVG uses stroke='currentColor'. Consumers MUST set `color` on the parent (or via fill on icon-bearing slot) to drive the stroke color. Apollo v2 Button binds parent text color = base/{variant}-foreground, so the icon inherits automatically.",
+      "figma": {
+        "parentNodeId": "5197:4005",
+        "vectorNodeId": "5197:659",
+        "componentName": "Lucide Icon / CircleArrowLeft",
+        "synonyms": "previous, back, revert, backwards, return, left direction, undo, reverse, preceding, retreat"
+      },
+      "usedBy": [
+        {
+          "component": "Button",
+          "slot": "leftIcon",
+          "context": "default value when showLeftIcon=true (across all non-Loading states + sized variants)",
+          "$ref": "Button.component.json.slots[name=leftIcon].default"
+        }
+      ]
+    },
+
+    {
+      "id": "icon-arrow-right",
+      "name": "icon/arrow-right",
+      "semantic": "arrow-right",
+      "svg": "assets/icons/arrow-right.svg",
+      "viewBox": "0 0 24 24",
+      "defaultSize": "{height.h-4}",
+      "$defaultSizeFallback": "16px",
+      "license": "ISC (lucide-static v1.16.0)",
+      "monochrome": true,
+      "renderColor": "currentColor",
+      "figma": {
+        "vectorNodeId": "5197:217",
+        "componentName": "Lucide Icon / ArrowRight"
+      },
+      "usedBy": [
+        {
+          "component": "Button",
+          "slot": "rightIcon",
+          "context": "default value when showRightIcon=true (across all states + sized variants)",
+          "$ref": "Button.component.json.slots[name=rightIcon].default"
+        }
+      ]
+    },
+
+    {
+      "id": "icon-loader-circle",
+      "name": "icon/loader-circle",
+      "semantic": "loader-circle",
+      "svg": "assets/icons/loader-circle.svg",
+      "viewBox": "0 0 24 24",
+      "defaultSize": "{height.h-4}",
+      "$defaultSizeFallback": "16px",
+      "license": "ISC (lucide-static v1.16.0)",
+      "monochrome": true,
+      "renderColor": "currentColor",
+      "animation": "spin",
+      "$animationNote": "When mounted as the Spinner inner-icon (state=Loading swapDefault), renderers MUST apply a continuous CSS rotation: `animation: spin 1s linear infinite` or equivalent. Lucide's stock SVG carries no animation; rotation is applied by the consumer.",
+      "figma": {
+        "parentNodeId": "5197:3626",
+        "vectorNodeId": "5197:1659",
+        "componentName": "Lucide Icon / LoaderCircle",
+        "synonyms": "rotating circle, spinning round, circulating animation, looping load, cyclical wait, animated ring, cycling preloader, orbiting buffer"
+      },
+      "usedBy": [
+        {
+          "component": "Button",
+          "slot": "leftIcon",
+          "context": "state=Loading swapDefault — replaces user-controllable leftIcon with a fixed Spinner instance",
+          "$ref": "Button.component.json.slots[name=leftIcon].swapDefaults['state=Loading']"
+        },
+        {
+          "component": "Spinner",
+          "slot": "innerIcon",
+          "context": "Spinner is its own local component (figmaKey 18665:25956) — wraps LoaderCircle + applies rotation. Used by Button.state=Loading and likely elsewhere across Apollo v2.",
+          "$ref": "Spinner.component.json (not yet emitted — pending atom batch)"
+        }
+      ]
+    }
+  ],
+
+  "$coverage": {
+    "iconsUsedByButton": 3,
+    "iconsExtracted": 3,
+    "extractionCompleteness": 1.0,
+    "$comment": "Per BUNDLE_SPEC §10.1 coverage requirement: 100% of icons referenced by Button's variant cells are now resolvable to a local SVG file. Spinner component itself is referenced but not yet emitted — that's expected; Spinner is a separate atom that ships with its own .component.json + .variants.json in the atom-batch phase."
+  },
+
+  "$verificationCandidate": {
+    "expectations": [
+      {
+        "check": "Every icon used by Button.variants-samples.json's 3 cells resolves to a file in assets/icons/",
+        "details": {
+          "Default/Default/default cell": "showLeftIcon=false in sample; if rendered with showLeftIcon=true → resolves to assets/icons/circle-arrow-left.svg ✓",
+          "Default/Loading/default cell": "Spinner first child → innerIcon resolves to assets/icons/loader-circle.svg ✓",
+          "Link/Default/default cell": "showLeftIcon=false in sample; right-icon slot empty; no icon required ✓"
+        }
+      },
+      {
+        "check": "All SVGs use currentColor stroke + 24x24 viewBox",
+        "result": "passes for all 3 (stock Lucide convention)"
+      },
+      {
+        "check": "License + provenance traceable",
+        "result": "ISC banner in every SVG, source URL in _index.json $metadata.iconSet"
+      }
+    ]
+  }
+}
