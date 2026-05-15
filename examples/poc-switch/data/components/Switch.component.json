@@ -72,12 +72,19 @@
       "name": "label",
       "type": "TEXT",
       "exposedBy": "showLabel",
-      "typography": "{typography.text-sm-leading-normal-medium}",
+      "typography": {
+        "default": "{typography.text-sm-leading-normal-medium}",
+        "sm":      "{typography.text-sm-leading-none-medium}",
+        "$comment": "Typography varies by size axis. See bindings.size-axis.{size}.labelTypography for the authoritative value."
+      },
       "fill": {
         "Default":  "{color.base.foreground}",
-        "Disabled": "{color.base.muted-foreground}",
+        "Disabled": "{color.base.foreground}",
         "Focus":    "{color.base.foreground}",
-        "Invalid":  "{color.base.foreground}"
+        "Invalid":  "{color.base.destructive}",
+        "$disabledNote": "Disabled label color stays at base/foreground; the 50% opacity is applied at the OUTER container level, which dims the entire component including the label.",
+        "$invalidNote": "Invalid label fills to destructive. Confirmed via cell 21141:9448.",
+        "$confirmed": "Walked Default, Disabled, Focus, Invalid cells."
       }
     },
     {
@@ -85,12 +92,14 @@
       "type": "TEXT",
       "exposedBy": "showDescription",
       "typography": "{typography.text-sm-leading-normal-normal}",
+      "$typographyNote": "Description typography is constant across size axis (unlike label).",
       "fill": {
         "Default":  "{color.base.muted-foreground}",
         "Disabled": "{color.base.muted-foreground}",
         "Focus":    "{color.base.muted-foreground}",
-        "Invalid":  "{color.base.destructive}",
-        "$invalidNote": "Likely shifts to destructive on Invalid state to signal the error. Verify in Step 3."
+        "Invalid":  "{color.base.muted-foreground}",
+        "$invalidNote": "Description STAYS muted on Invalid (does not shift to destructive). Inference in Step 2 was wrong — corrected here. Confirmed via cell 21141:9448.",
+        "$confirmed": "Walked Default, Disabled, Focus, Invalid cells."
       }
     }
   ],
@@ -133,15 +142,51 @@
         "Disabled": "{color.custom.input-dark-input-80}",
         "Focus":    "{color.custom.input-dark-input-80}",
         "Invalid":  "{color.custom.input-dark-input-80}",
-        "$confirmed": "Walked cell 428:1425 (default/Off/Default/Default/Start). Track fill = input-dark-input-80 (#a3a3a3 gray) in Off state. Other state cells inferred from pattern; confirm in Step 3."
+        "$confirmed": "Walked cells 428:1425 (Default), 21141:13977 (Disabled), 17428:105516 (Focus), 21141:9448 (Invalid). Off track fill = input-dark-input-80 (#a3a3a3) across ALL state values. State changes Off track via border/shadow/opacity, not fill."
       },
       "On": {
         "Default":  "{color.base.primary}",
         "Disabled": "{color.base.primary}",
         "Focus":    "{color.base.primary}",
         "Invalid":  "{color.base.destructive}",
-        "$tbdStep3": "Inferred: On track fills to primary (or destructive on Invalid). Verify per cell."
+        "$confirmed": "Walked cell 428:1431 (default/On/Default/Default/Start) → track fill = base/primary. Other On+state cells inferred from same Off pattern (state delta = border/shadow not fill); Invalid+On inferred from Invalid+Off (border=destructive, ring=focus-destructive) plus On semantics (fill=destructive instead of primary). Confirm in next round."
       }
+    },
+
+    "thumb-position": {
+      "$axisDependency": "active",
+      "Off": "flex-start (default; thumb at left edge of inner-track)",
+      "On":  "flex-end (thumb at right edge of inner-track)",
+      "$mechanism": "Track is HORIZONTAL flex container with single child (thumb). justify-content shifts the child between flex-start (Off) and flex-end (On). No position-absolute / transform. Result: clean CSS, smart-animate-driven slide between the two layout endpoints.",
+      "$confirmed": "Walked 428:1425 (Off → no justify class = default flex-start) + 428:1431 (On → justify-end class added)."
+    },
+
+    "track-border": {
+      "$axisDependency": "state",
+      "Default":  { "width": "{border-width.border-2}", "color": "{color.tailwind.base.transparent}", "style": "solid", "$role": "transparent breathing margin around thumb" },
+      "Disabled": { "width": "{border-width.border-2}", "color": "{color.tailwind.base.transparent}", "style": "solid", "$role": "same as Default; Disabled state changes opacity only" },
+      "Focus":    { "width": "{border-width.border}",   "color": "{color.base.ring}",                 "style": "solid", "$role": "Focus swaps the transparent border-2 for a 1px ring-colored border" },
+      "Invalid":  { "width": "{border-width.border}",   "color": "{color.base.destructive}",          "style": "solid", "$role": "Invalid swaps the transparent border-2 for a 1px destructive border" },
+      "$confirmed": "Walked 4 cells across state axis. Pattern: Default/Disabled = border-2 transparent; Focus = border-1 base/ring; Invalid = border-1 destructive."
+    },
+
+    "track-shadow": {
+      "$axisDependency": "state",
+      "Default":  null,
+      "Disabled": null,
+      "Focus":    "{effect.focus-default}",
+      "Invalid":  "{effect.focus-destructive}",
+      "$invalidNote": "F11 (NEW finding, MEDIUM): Invalid state shows the destructive focus ring AT REST (always shown, not only on Focus). Likely intentional Apollo v2 design — emphasizes invalidness without requiring focus. Documented; not a bug. Verify if Focus+Invalid combo doubles the ring (likely just shows the destructive one).",
+      "$confirmed": "Walked Focus (17428:105516) + Invalid (21141:9448) cells. Default/Disabled have no track shadow."
+    },
+
+    "track-overflow": {
+      "Default":  "visible",
+      "Disabled": "visible",
+      "Focus":    "clip",
+      "Invalid":  "clip",
+      "$comment": "Focus + Invalid cells emit overflow-clip on the track. Likely to prevent the thumb from visually escaping the bordered track edge when the border thickness changes. Default/Disabled have no overflow set (visible default).",
+      "$confirmed": "Walked Focus + Invalid cells."
     },
 
     "thumb-fill": {
@@ -151,21 +196,23 @@
 
     "focus-ring": {
       "$axisDependency": "state",
+      "$note": "Equivalent to track-shadow above. Switch uses the same drop-shadow effect for both 'focus indication' and 'invalid indication'. Kept as separate key for parity with Button.component.json schema; consumers should treat track-shadow as authoritative.",
       "Default":  null,
       "Disabled": null,
       "Focus":    "{effect.focus-default}",
       "Invalid":  "{effect.focus-destructive}",
-      "$invalidNote": "Invalid state likely uses destructive focus ring (matches Button's Destructive variant convention). Confirm via cell 21141:9448."
+      "$confirmed": "Walked 17428:105516 (Focus) + 21141:9448 (Invalid)."
     },
 
     "opacity": {
       "$axisDependency": "state",
+      "$appliedAt": "outer <button> container — affects entire component (track + thumb + label + description) uniformly",
       "Default":  "1",
       "Disabled": "{opacity.opacity-50}",
       "Focus":    "1",
       "Invalid":  "1",
-      "$disabledNote": "Switch uses opacity-50 for Disabled. Audit Finding 8 (NEW): inconsistent with Button (which uses tinted color, not opacity). Cross-component DS inconsistency. Recommend standardizing — either all-opacity or all-tinted-color.",
-      "$confirmedNote": "opacity-50 token observed in Switch tokens.json; confirm per-cell application via Step 3."
+      "$disabledNote": "F8 (CONFIRMED, MEDIUM): Switch applies opacity-50 at the OUTER button container for Disabled. Button uses tinted color (no alpha) for Disabled. Cross-component DS inconsistency. Recommend standardizing.",
+      "$confirmed": "Walked cell 21141:13977 (default/Off/Disabled/Default/Start) — opacity-50 class on outer container; track/thumb/label/description otherwise unchanged from Default."
     },
 
     "size-axis": {
@@ -173,16 +220,27 @@
         "trackWidth":  "{width.w-8}",
         "trackHeight": "18.4px",
         "$trackHeightBindingStatus": "hardcoded",
+        "$trackHeightAuditFinding": "F9 (MEDIUM): 18.4px not bound. No token at this value. Source-DS audit: add height/h-4-5 (18px) OR document the 18.4 fraction as intentional.",
         "thumbWidth":  "{width.w-4}",
         "thumbHeight": "{height.h-4}",
-        "$confirmed": "Walked cell 428:1425."
+        "labelTypography": "{typography.text-sm-leading-normal-medium}",
+        "descriptionTypography": "{typography.text-sm-leading-normal-normal}",
+        "$confirmed": "Walked cells 428:1425 (Default), 428:1431 (On), 17119:18448 (Box), 21141:9448 (Invalid), 21141:13977 (Disabled), 17428:105516 (Focus)."
       },
       "sm": {
         "trackWidth":  "{width.w-6}",
-        "trackHeight": "TBDStep3",
+        "trackHeight": "14px",
+        "$trackHeightBindingStatus": "hardcoded",
+        "$trackHeightAuditFinding": "F10 (NEW, MEDIUM): 14px not bound. Parallel to F9 — Apollo v2 has no height/h-* at 14. Either add height/h-3-5 OR snap to h-3 (12).",
         "thumbWidth":  "{width.w-3}",
         "thumbHeight": "{height.h-3}",
-        "$tbdStep3":   ["trackHeight"]
+        "$thumbBindingStatus": "partial",
+        "$thumbNote": "Cell 21136:10697 emits raw 12px (size-[12px]) not via {width.w-3} token. Matches the numeric value but cell-level binding absent. Source-DS audit: explicit bind.",
+        "labelTypography": "{typography.text-sm-leading-none-medium}",
+        "$labelTypographyNote": "Surprise: sm uses leading-NONE (line-height: 1) variant; default uses leading-normal (line-height: 20). Apollo v2 packed sm tighter.",
+        "descriptionTypography": "{typography.text-sm-leading-normal-normal}",
+        "$descriptionTypographyNote": "Description typography unchanged across sizes (always leading-normal-normal).",
+        "$confirmed": "Walked cell 21136:10697 (GAP-S2 closure)."
       }
     },
 
@@ -190,17 +248,23 @@
       "Default": {
         "$role": "Compact inline layout — label + description next to a bare track. No frame around the component.",
         "containerWidth":  "312px (Type=Default size=default) / 304px (Type=Default size=sm)",
+        "$containerWidthBindingStatus": "hardcoded",
         "containerBorder": "none",
         "containerPadding": "0",
-        "containerRadius": "0"
+        "containerRadius": "0",
+        "containerFill":   "none (transparent)",
+        "$confirmed": "Walked cells 428:1425, 428:1431, 21141:9448, 21141:13977, 17428:105516, 21136:10697 — all Type=Default. Width 312/304 hardcoded across all of them."
       },
       "Box": {
         "$role": "Boxed layout — label + description + track inside a bordered container. For form-field placement parity.",
         "containerWidth":  "300px (Type=Box size=default) / 296px (Type=Box size=sm)",
+        "$containerWidthBindingStatus": "hardcoded",
         "containerBorder": "{border-width.border} solid {color.base.border}",
-        "containerPadding": "{spacing.3}",
+        "containerPadding": "{spacing.2-5}",
+        "$paddingCorrection": "Step 2 inferred spacing/3 (12px); cell walk shows spacing/2-5 (10px). Correction applied.",
         "containerRadius": "{border-radius.rounded-lg}",
-        "$tbdStep3": "Box-type cell not yet walked. Confirm padding-y + per-state border behavior."
+        "containerFill":   "{color.base.background}",
+        "$confirmed": "Walked cell 17119:18448 (default/Off/Default/Box/Start). GAP-S3 closure."
       }
     },
 
@@ -275,34 +339,51 @@
     {
       "id": "GAP-S1",
       "field": "Track height 18.4px raw, no token binding (Finding 9 candidate)",
-      "resolution": "Source-DS audit: add height/h-4-5 (18px) token OR document raw 18.4 as intentional"
+      "resolution": "OPEN — surfaced as F9 (MEDIUM). Source-DS audit: add height/h-4-5 (18px) token OR document raw 18.4 as intentional."
     },
     {
       "id": "GAP-S2",
       "field": "size=sm track height not yet walked",
-      "resolution": "Walk cell 21136:10697 (sm/Off/Default/Default/Start)"
+      "resolution": "CLOSED (Step 3, cell 21136:10697). sm track = 14px raw. New finding F10 (MEDIUM): also unbound."
     },
     {
       "id": "GAP-S3",
       "field": "Type=Box cell details (padding-y, per-state border behavior)",
-      "resolution": "Walk cell 17119:18448 (default/Off/Default/Box/Start)"
+      "resolution": "CLOSED (Step 3, cell 17119:18448). Box padding = spacing/2-5 (10px, NOT spacing/3 12px as inferred). Container border + radius + fill confirmed."
     },
     {
       "id": "GAP-S4",
       "field": "Animation timing (duration + easing) on toggle transition",
-      "resolution": "Step 5 — extract prototype.json with interactions"
+      "resolution": "OPEN — Step 5 (prototype.json) deferred."
     },
     {
       "id": "GAP-S5",
       "field": "Per-state track-fill for On + state combinations",
-      "resolution": "Walk cells per state axis on active=On"
+      "resolution": "PARTIAL — cell 428:1431 (On/Default) confirms primary fill. On+Disabled/Focus/Invalid inferred (state delta = border/shadow not fill, mirroring Off pattern); confirm in next round."
     },
     {
       "id": "GAP-S6",
       "field": "Container fixed widths (312/304/300/296) raw, not bound",
-      "resolution": "Source-DS audit: bind to width tokens OR document as intentional fixed sizes"
+      "resolution": "CONFIRMED hardcoded across all 6 walked cells. Source-DS audit candidate (parallel to Button's F2). Not a bundle blocker."
+    },
+    {
+      "id": "GAP-S7",
+      "field": "Active=On track justify-end behavior — is it intentional layout vs CHANGE_VARIANT-driven repositioning?",
+      "resolution": "CLOSED — Step 3 walk of cells 428:1425 (Off) + 428:1431 (On) shows the mechanism: justify-content shifts between flex-start and flex-end. Captured in bindings.thumb-position."
+    },
+    {
+      "id": "GAP-S8 (NEW)",
+      "field": "Invalid state shows destructive ring at REST, not only on Focus",
+      "resolution": "DOCUMENTED — F11 (NEW, MEDIUM): Invalid state's focus-destructive drop-shadow appears always. Apollo v2 intentional emphasis. Captured in bindings.track-shadow.Invalid."
     }
   ],
+
+  "$new_audit_findings_from_step3": {
+    "F8": "CONFIRMED at cell level. Switch uses opacity-50 at outer container for Disabled; Button uses tinted color. DS-wide inconsistency.",
+    "F9": "CONFIRMED at cell level. Default-size track height 18.4px raw.",
+    "F10": "NEW. sm-size track height 14px raw. Parallel to F9.",
+    "F11": "NEW. Invalid state shows destructive focus ring at rest. Not a bug — apparently intentional Apollo v2 design — documented for downstream consumers."
+  },
 
   "$spec_patches_validated": {
     "v0.2.0": [
