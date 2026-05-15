@@ -112,6 +112,8 @@ Consumers (Claude Design) MAY read this and refuse to inline. SP candidate for `
 
 ## Finding 2 (MEDIUM IMPACT) — Icon size width is hardcoded
 
+> **Full action plan:** [`token-rebinding-proposal.md`](token-rebinding-proposal.md) (covers F2 + F4 together; same root cause + same Figma workflow).
+
 ### Symptom
 
 `Button` size=icon (and likely icon-xs / icon-sm / icon-lg by analogy) emits a raw `width: 44px` on the container instead of binding to the `width/w-11` variable.
@@ -150,6 +152,8 @@ Apollo v2 currently has `width/w-3, w-4, w-6, w-11` but not w-9/w-10/w-12. Addin
 ---
 
 ## Finding 4 (MEDIUM IMPACT) — iconSize is hardcoded raw across most Button sizes
+
+> **Full action plan:** [`token-rebinding-proposal.md`](token-rebinding-proposal.md) (covers F2 + F4 together).
 
 ### Symptom
 
@@ -241,9 +245,9 @@ In Figma, edit `Button` variant=Link `documentationLink` from `#ghost` → `#lin
 | # | Severity | Finding | Source-DS action |
 |---|---|---|---|
 | 1 | HIGH | Button.Link unusable inline (18px semibold vs body 16px regular) | Add `InlineLink` component (chosen 2026-05-15; spec in `inline-link-proposal.md`, awaiting Figma authoring) |
-| 2 | MEDIUM | Icon-size widths hardcoded (`44px` etc.) instead of bound to `width/w-*` tokens | Bind icon-size widths to existing or new `width/w-*` tokens |
-| 3 | LOW | Link variant documentationLink points to `#ghost` not `#link` | Edit URL fragment in Figma |
-| 4 | MEDIUM | iconSize hardcoded raw across multiple Button sizes (12/14/16/24 px) instead of binding to `width.w-3/w-4/w-6` tokens | Bind iconSize on cells xs/sm/default/lg/icon/icon-xs/icon-sm/icon-lg to width tokens; add `w-3-5` (14px) token if needed for size=sm |
+| 2 | MEDIUM | Icon-size widths hardcoded (`44px` etc.) instead of bound to `width/w-*` tokens | Add `width.w-9/w-10/w-12` tokens + rebind. Full plan in `token-rebinding-proposal.md` (covers F2 + F4 together). Awaiting Figma work. |
+| 3 | LOW | Link variant documentationLink points to `#ghost` not `#link` | Edit URL fragment in Figma — 1-line fix. See `token-rebinding-proposal.md` §11 for context. |
+| 4 | MEDIUM | iconSize hardcoded raw across multiple Button sizes (12/14/16/24 px) instead of binding to `width.w-3/w-4/w-6` tokens | Rebind iconSize on 8 sizes per `token-rebinding-proposal.md` (same proposal as F2). Possibly add `w-3-5` (14px) — Option A vs B documented. |
 
 All three are real issues in the source DS — not bundle or extractor bugs. The PoC working as designed surfaced them. Ship the fixes when bandwidth allows (post-OOO).
 
