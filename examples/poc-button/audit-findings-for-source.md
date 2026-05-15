@@ -54,7 +54,9 @@ But the component name "Link" reads as a generic "any link". Designers and AI co
 
 ### Recommended fix (two options)
 
-**Option A (preferred) — Add a dedicated `InlineLink` component.**
+**Option A (preferred + chosen 2026-05-15) — Add a dedicated `InlineLink` component.**
+
+→ **Full proposal:** [`inline-link-proposal.md`](inline-link-proposal.md) (spec v0.1.0, not yet authored in Figma).
 
 Separate primitive. Lives in body-text contexts. Typography inherits from parent (`font-size: inherit; font-weight: inherit; line-height: inherit`). Only its own visual identity: color (`base/primary`), textDecoration UNDERLINE, hover/focus/disabled states matching Button.Link's color scheme.
 
@@ -238,7 +240,7 @@ In Figma, edit `Button` variant=Link `documentationLink` from `#ghost` → `#lin
 
 | # | Severity | Finding | Source-DS action |
 |---|---|---|---|
-| 1 | HIGH | Button.Link unusable inline (18px semibold vs body 16px regular) | Add `InlineLink` component (preferred) OR add `size=inline` to Button.Link |
+| 1 | HIGH | Button.Link unusable inline (18px semibold vs body 16px regular) | Add `InlineLink` component (chosen 2026-05-15; spec in `inline-link-proposal.md`, awaiting Figma authoring) |
 | 2 | MEDIUM | Icon-size widths hardcoded (`44px` etc.) instead of bound to `width/w-*` tokens | Bind icon-size widths to existing or new `width/w-*` tokens |
 | 3 | LOW | Link variant documentationLink points to `#ghost` not `#link` | Edit URL fragment in Figma |
 | 4 | MEDIUM | iconSize hardcoded raw across multiple Button sizes (12/14/16/24 px) instead of binding to `width.w-3/w-4/w-6` tokens | Bind iconSize on cells xs/sm/default/lg/icon/icon-xs/icon-sm/icon-lg to width tokens; add `w-3-5` (14px) token if needed for size=sm |
