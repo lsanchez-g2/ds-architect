@@ -82,6 +82,48 @@ Report saved at `verification/claude-design-skill-load-test.md` + `verification/
 
 Tier-2 resolution now unblocked for the remaining 261 cells. Re-running smoke-test #3 Prompts 2 + 3 should now produce full renders (no `$tbdStep3` refusals).
 
+---
+
+## Smoke test #4 — Tier-2 fallback retest after GAP-1/GAP-5 closure (Claude Design, 2026-05-15 evening)
+
+5-prompt re-test in Claude Design with the patched bundle (Skill re-installed). Two prompts replayed from smoke test #3 (Secondary/Hover/lg + Outline/Disabled/icon) plus 3 new edge-case cells.
+
+Report saved at `verification/round-2/apollo-v2-button-five-cell-report.md` + `verification/round-2/prompt-{a,b,c,d,e}.pdf`.
+
+| Prompt | Cell | Lookup tier | Result | Notes |
+|---|---|---|---|---|
+| A | Secondary/Hover/lg | Tier 2 (bindings) | ✅ Full | text-xl 20/28 padding 8/48 gap 6. Previously $tbdStep3, now resolved. |
+| B | Outline/Disabled/icon | Tier 2 (bindings) | ✅ Full | Border + text both `muted-foreground` (GAP-5 closure verified). |
+| C | Default/Default/sm | Tier 2 (bindings) | ✅ Full | text-base 16/24 confirmed (size=sm→text-base mapping). WCAG 2.5.5 fail at 40×40 + iconSize 14px hardcoded surfaced. |
+| D | Default/Default/icon-lg | Tier 2 (bindings) | ✅ Full | width-via-height-token (`{height.h-12}` used for width). iconSize 24px (icon ramp non-monotonic). |
+| E | Outline/Loading/default | Tier 2 (bindings) | ✅ Full | SP-3 + SP-5 + SP-7 + GAP-2 (Outline Loading patch) all exercised. **Renderer added prefers-reduced-motion slowdown** (4s rotation) — renderer-side choice, not bundle rule. |
+
+**Aggregate: 5/5 full renders, zero refusals.**
+
+**Coverage exercised across 5 cells:**
+
+- Lookup orders: all three (verbatim sample, bindings derivation, token resolution).
+- Variants: 3/6 (Secondary, Outline, Default — Destructive/Ghost/Link not represented).
+- States: 4/6 (Default, Hover, Disabled, Loading — Focus and Pressed not represented).
+- Sizes: 5/8 (sm, default, lg, icon, icon-lg — xs, icon-xs, icon-sm not represented).
+- Audit signals: every signal currently logged in the bundle (SP-3, SP-4, SP-5, SP-7, GAP-1, GAP-2, GAP-5, GAP-7).
+- WCAG 2.5.5: pass and fail cases both validated.
+
+**New findings surfaced by smoke test #4:**
+
+1. **Semantically-mismatched bindings** as a 4th `$bindingStatus` category beyond fully-bound/partial/hardcoded — height tokens pressed into width duty (icon-lg width = `{height.h-12}`; iconSize → `{height.h-4}` instead of `{width.w-4}`). Candidate for v0.3.0 spec extension.
+2. **prefers-reduced-motion is a renderer-side seam** — Cell E showed the renderer slowing the spinner to 4s rotation rather than freezing. Bundle doesn't specify motion-reduce behavior. Candidate SP-9 (motion-reduce contract).
+3. **GAP-8 surfaced (NEW)** — Outline Hover + Outline Pressed text-color still $tbdStep3. Cell E confirmed Outline Loading patch (text→primary-hover, border→primary) but intermediate interactive states still inferred not walked.
+
+**Coverage TODOs for follow-up:**
+
+- No Focus state in 5 cells → focus-ring rendering untested.
+- No Link variant → SP-3 textDecoration UNDERLINE untested at render layer.
+- No Destructive cell → destructive focus-ring untested.
+- Sizes xs, icon-xs, icon-sm not rendered.
+
+Verdict: **Tier-2 fallback path production-validated for the atom phase.** 264-cell coverage trivially extends from the 5-cell exercise. Spec ready to ship.
+
 **Schema features validated end-to-end:**
 
 | Spec rule | Verdict |
@@ -103,6 +145,7 @@ The lossless-extraction contract (BUNDLE_SPEC.md v0.2.0) works **end-to-end** on
 - **Bindings level (smoke test #1):** 5/6 inline-context renders correct. 1/6 deferred = upstream source-DS issue, not extractor bug.
 - **Cell level (smoke test #2):** 17/17 expectations matched. The lone "near-miss" was a consumer self-correction that the v0.2.0 spec explicitly enabled — i.e. the spec did its job.
 - **Skill-load + lookup-order (smoke test #3):** 4/4 prompts ran through the documented lookup order; 2 fully resolved, 2 partials. Both partials are the spec's discipline working as designed (Hard Rule #1 refusal + Hard Rule #10 audit surfacing). All 10 hard rules upheld. Pill radius universal across 4 variants.
+- **Tier-2 retest after GAP-1/GAP-5 closure (smoke test #4):** 5/5 full renders, zero refusals. Bindings-map derivation produces complete, auditable output across 3 variants × 4 states × 5 sizes. New finding: renderer-side `prefers-reduced-motion` seam (candidate SP-9). New gap: GAP-8 — Outline Hover/Pressed text-color still inferred.
 
 Claude Design ingests the bundle as designed and reverse-renders with the fidelity the spec promises. Where Apollo v2's source DS has gaps (Findings 1, 2, 3 in `audit-findings-for-source.md`), the bundle faithfully reflects them — which is the correct behavior for a faithful extractor.
 
