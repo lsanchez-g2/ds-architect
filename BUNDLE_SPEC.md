@@ -1,4 +1,4 @@
-# BUNDLE_SPEC.md — Lossless Design System Bundle (v0.2.0)
+# BUNDLE_SPEC.md — Lossless Design System Bundle (v0.3.0)
 
 > The serialization contract between **ds-architect** (extractor) and any downstream consumer (Claude Design, Stitch, v0, custom renderers).
 >
@@ -8,11 +8,14 @@
 
 ## 0. Status
 
-- **Version:** 0.2.0 (LOCKED for atom phase — validated end-to-end against Apollo v2 Button on 2026-05-15)
+- **Version:** 0.3.0 (DRAFT — additive patches from Apollo v2 Button smoke tests #3 + #4)
 - **Schema versioning:** semver, declared in `MANIFEST.json` → `bundleVersion`
-- **Compatibility:** consumers MUST refuse bundles with a major version newer than they support.
-- **v0.2.0 changelog:** see §17 below.
-- **Validation:** `examples/poc-button/verification/claude-design-3-cell-report.html` — 16/17 expectations matched + 1 self-correction on asymmetric padding (the self-correction is the proof that SP-7 padding-per-side capture is load-bearing, not a flaw).
+- **Compatibility:** consumers MUST refuse bundles with a major version newer than they support. v0.3.0 is fully backward-compatible with v0.2.0 consumers (additive only).
+- **v0.3.0 changelog:** see §17 below.
+- **Validation history:**
+  - v0.2.0 cell-level: `examples/poc-button/verification/claude-design-3-cell-report.html` — 16/17 expectations matched + 1 self-correction on asymmetric padding (the self-correction is the proof that SP-7 padding-per-side capture is load-bearing, not a flaw).
+  - v0.2.0 Skill-load + lookup-order: `examples/poc-button/verification/claude-design-skill-load-test.md` — 4 prompts, Hard Rule #1 ("never invent values") enforced.
+  - v0.2.0 Tier-2 retest after GAP closures: `examples/poc-button/verification/round-2/apollo-v2-button-five-cell-report.md` — 5/5 full renders. Surfaced SP-9 + 4th `$bindingStatus` category candidates → patched in this v0.3.0.
 
 ---
 
@@ -365,7 +368,23 @@ The **API + metadata + bindings map**. NOT the geometry — that's in `.variants
       "swapPreferred": "Lucide Icons/*",
       "swapDefaults": {
         "$comment": "SP-5 (v0.2.0): per-(variant,state) default-swap. Some state values replace the user-controlled slot with a system-mandated component (e.g. Spinner during Loading).",
-        "state=Loading": { "library": "Local", "icon": "Spinner", "componentRef": "Spinner" }
+        "state=Loading": {
+          "library": "Local",
+          "icon": "Spinner",
+          "componentRef": "Spinner",
+          "animation": {
+            "$comment": "SP-9 (v0.3.0): animation block — declarative motion descriptor. Renderer SHOULD honor `motionReduce.policy` against the `prefers-reduced-motion` media query.",
+            "name": "spin",
+            "duration": "1s",
+            "easing": "linear",
+            "iterations": "infinite",
+            "motionReduce": {
+              "policy": "slow",
+              "duration": "4s",
+              "$reason": "Freezing the spinner would make Loading visually identical to Default — bad UX. Slow rotation preserves activity signal at reduced motion intensity."
+            }
+          }
+        }
       }
     },
     {
@@ -508,19 +527,67 @@ fontVariations (variable axes), textRangeOverrides (per-range font/color/style o
 
 **SP-3 (v0.2.0):** `textDecoration` MUST be emitted independently of `boundTextStyle`. A node MAY have a non-`NONE` `textDecoration` (e.g. UNDERLINE) even when its typography is bound to a non-underlined token (or vice versa). Apollo v2 Button variant=Link shows this pattern: text uses standard `text-lg-semibold` typography with `textDecoration: "UNDERLINE"` applied on the TEXT node. Capturing typography alone is lossy.
 
-**SP-4 (v0.2.0):** Every bindable property MUST emit a sibling `$bindingStatus` field:
+**SP-4 (v0.2.0, extended v0.3.0):** Every bindable property MUST emit a sibling `$bindingStatus` field:
 
 ```
 "cornerRadius": {
   "topLeft": 8, ...,
   "boundVariable": { "topLeft": "{radius.component.button}", ... },
-  "$bindingStatus": "fully-bound"   // or "partial", "hardcoded"
+  "$bindingStatus": "fully-bound"   // see allowed values below
 }
 ```
 
-Values: `fully-bound` (every component of the property has a `boundVariable`), `partial` (some components bound, some raw), `hardcoded` (no binding, raw value emitted). Hardcoded properties are valid output but are audit signals — consumers and audit tools rely on this flag. Apollo v2 Button size=icon emits `width: 44, $bindingStatus: "hardcoded"` for the container width.
+Allowed values:
+
+- **`fully-bound`** — every sub-component of the property resolves through a `boundVariable` of the correct semantic axis.
+- **`partial`** — some sub-components bind, some are raw pixel values with no token reference.
+- **`hardcoded`** — no `boundVariable` anywhere; raw value emitted. Audit signal. Apollo v2 Button size=icon emits `width: 44, $bindingStatus: "hardcoded"` for the container width.
+- **`semantically-mismatched`** *(added v0.3.0)* — a `boundVariable` exists and resolves to the correct numeric value, but the bound token belongs to a **different semantic axis** than the property. Example from Apollo v2 Button cell `18672:202554` (icon-lg): `width` is bound to `{height.h-12}` — a height token used as the width source. The value (48px) is correct; the axis is wrong. Renderers can ignore the axis mismatch; audit tooling MUST surface it because the binding will drift if the height axis later changes independently. When emitted, an additional `$bindingMismatchNote` field SHOULD explain the substitution.
+
+Hardcoded properties + semantically-mismatched bindings are both **valid bundle output** — the contract preserves source-DS reality faithfully. Both are **audit signals** for downstream tools (and for the source-DS maintainer) to act on.
+
+Worked example of v0.3.0 `semantically-mismatched`:
+
+```json
+{
+  "width": 48,
+  "boundVariable": { "width": "{height.h-12}" },
+  "$bindingStatus": "semantically-mismatched",
+  "$bindingMismatchNote": "Apollo v2 lacks a width.w-12 token at 48px. Height token used cross-axis. Source-DS audit: add width.w-12 + rebind."
+}
+```
 
 **SP-7 (v0.2.0):** `clipsContent` MUST be emitted on every container node, even when default `false`. Apollo v2 sets it asymmetrically across the variant axis (only Default variant has overflow-clip), and omitting the field collapses the asymmetry.
+
+**SP-9 (v0.3.0):** Animation declarations on slots, swapDefaults, and variant transitions MUST carry an explicit `motionReduce` policy. Renderers MUST honor it against the `prefers-reduced-motion` media query. The bundle treats motion-reduce behavior as part of the contract, not a renderer-side judgment call.
+
+The `animation` block schema:
+
+```json
+"animation": {
+  "name": "spin",                         // semantic name (renderer maps to platform animation)
+  "duration": "1s",                       // base duration
+  "easing": "linear" | "ease-in" | "ease-out" | "ease-in-out" | "cubic-bezier(…)",
+  "iterations": "infinite" | <number>,    // CSS animation-iteration-count
+  "delay": "0s",                          // optional, default 0
+  "motionReduce": {
+    "policy": "slow" | "freeze" | "skip" | "as-is",
+    "duration": "<override>",             // required when policy=slow; ignored otherwise
+    "$reason": "<one-line explanation visible to consumers + audit tools>"
+  }
+}
+```
+
+`motionReduce.policy` values:
+
+- **`slow`** — keep the animation but stretch its duration (per the override). Use when freezing would lose information (e.g. a spinner indicating Loading — freezing makes it visually identical to non-busy).
+- **`freeze`** — pause the animation, hold the current frame. Use when the animation is decorative and reduced-motion users prefer stillness.
+- **`skip`** — render the animation's end state immediately, no transition. Use for entrance/exit transitions (smart-animate, dissolves) where the destination state is what matters.
+- **`as-is`** — explicitly opt OUT of motion-reduce behavior. Reserved for animations where reduced motion would break the affordance (rare; document the reason).
+
+**Required because:** smoke test #4 surfaced that Apollo v2 Button's Loading-state Spinner has no motion-reduce contract in the source DS. The renderer (Claude Design) made a sensible default — 4s slow rotation — but a different renderer might freeze the spinner and silently produce a worse UX. The bundle making the policy explicit removes the seam.
+
+For Loading-state Spinners specifically, the recommended default policy is `slow` with a 4× duration multiplier (e.g. base `1s` → reduced `4s`). Source-DS may override.
 
 For INSTANCE nodes:
 
@@ -888,6 +955,13 @@ Each phase has its own acceptance criteria in `v3-EXTRACTION-PLAN.md`.
 
 ## 17. Changelog
 
+### v0.3.0 — 2026-05-15 (post Apollo v2 Button smoke tests #3 + #4)
+
+Additive patches surfaced by Skill-load + lookup-order test (smoke #3, 4 prompts, Hard Rule #1 enforced) and Tier-2 retest after GAP closures (smoke #4, 5 prompts, 5/5 full renders). Backward-compatible: a v0.2.0 consumer can read a v0.3.0 bundle if it treats new fields as optional.
+
+- **SP-4 extension** — `$bindingStatus` enum gains a 4th value `semantically-mismatched`. A `boundVariable` exists with the correct numeric value, but the bound token belongs to a different semantic axis than the property. Example: Apollo v2 Button icon-lg `width` bound to `{height.h-12}` (height token used cross-axis). Renderers may ignore the axis mismatch; audit tooling MUST surface it. Optional `$bindingMismatchNote` field carries explanation.
+- **SP-9** — Animation declarations (on slots, swapDefaults, variant transitions) MUST carry an explicit `motionReduce` policy. Renderers MUST honor it against `prefers-reduced-motion`. Policies: `slow` (stretch duration), `freeze` (pause + hold frame), `skip` (jump to end state), `as-is` (explicit opt-out). Surfaced by smoke test #4 — Claude Design chose 4s slow rotation on the Outline/Loading Spinner without spec guidance; bundle should encode the intent rather than rely on consumer-side judgment. Recommended default for Loading Spinners: `slow` at 4× base duration.
+
 ### v0.2.0 — 2026-05-15 (Button PoC sample-first phase)
 
 Additive patches surfaced by walking 8 sample cells of Apollo v2 Button (file `3401ZFUHoboOwA6GGjAEsq`, node `37:931`). Backward-compatible: a v0.1.0 consumer can read a v0.2.0 bundle if it ignores the new fields.
@@ -908,4 +982,4 @@ Initial draft. Schema contract for: tokens (W3C extended), component manifests, 
 
 ---
 
-**Status:** v0.2.0 **LOCKED for atom phase** (2026-05-15). Cell-level contract validated end-to-end against Apollo v2 Button via Claude Design reverse-render: 16/17 expectations matched + 1 spec-driven self-correction (asymmetric padding). Bump to v0.3.0 only if molecule/organism batches surface non-additive schema changes.
+**Status:** v0.3.0 **DRAFT** (2026-05-15) — additive patches from Apollo v2 Button smoke tests #3 + #4. v0.2.0 remains LOCKED for atom phase (4 smoke tests, 31 distinct render checks, 100% conformant). v0.3.0 patches (SP-4 extension + SP-9) lock when first re-test with a Loading-state animation cell confirms `motionReduce` is honored end-to-end. Bump to v1.0.0 only if molecule/organism batches surface non-additive schema changes.
