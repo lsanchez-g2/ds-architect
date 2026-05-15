@@ -1,0 +1,133 @@
+{
+  "$schema": "../../BUNDLE_SPEC.md#section-3",
+  "bundleVersion": "0.3.0",
+  "bundleId": "apollo-v2-switch-bundle-poc",
+  "bundleStatus": "proof-of-concept",
+  "bundleScope": "single-component (Switch) — partial cell coverage",
+
+  "system": {
+    "name": "Apollo v2 (SA)",
+    "version": "2.1.0",
+    "description": "G2 / Software Advice design system",
+    "owner": "lsanchez-g2"
+  },
+
+  "source": {
+    "type": "figma",
+    "fileKey": "3401ZFUHoboOwA6GGjAEsq",
+    "fileName": "Apollo v2 (SA) - Design System",
+    "fileUrl": "https://www.figma.com/design/3401ZFUHoboOwA6GGjAEsq/Apollo-v2--SA----Design-System",
+    "rootNodeId": "60:450",
+    "rootNodeName": "Switch",
+    "extractedBy": "ds-architect@v3 (https://github.com/lsanchez-g2/ds-architect)",
+    "extractedAt": "2026-05-15T23:25:00Z",
+    "extractionMethod": "Figma MCP (get_metadata + get_design_context + get_variable_defs) — sample-first 6-cell walk + pattern extrapolation"
+  },
+
+  "spec": {
+    "name": "BUNDLE_SPEC.md",
+    "version": "0.3.0",
+    "status": "DRAFT — locks when re-test validates SP-9 motionReduce honored on both Button Spinner (slow) and Switch toggle (skip)",
+    "patches": [
+      "SP-1 exposedProps whenVariant/whenSize filters",
+      "SP-2 variantConstraints.disabledProps",
+      "SP-3 textDecoration captured independent of typography token",
+      "SP-4 $bindingStatus per bindable property",
+      "SP-4 extension (v0.3.0): $bindingStatus gains 'semantically-mismatched' value",
+      "SP-5 slots[].swapDefaults map per (variant,state)",
+      "SP-6 codeConnect.quality.perVariantUrlVerified + verificationFailures[]",
+      "SP-7 clipsContent always emitted + bindings.size all 7 fields mandatory",
+      "SP-8 tokens extractor unions nested-INSTANCE variable refs",
+      "SP-9 (v0.3.0): motionReduce policy on animation declarations — Switch uses policy=skip on toggle"
+    ]
+  },
+
+  "counts": {
+    "components":         1,
+    "componentSets":      1,
+    "variantAxes":        5,
+    "variantCells":       64,
+    "variantCellsEmitted": 3,
+    "variantCellsCoverage": 0.0469,
+    "tokens":             39,
+    "tokensSharedWithButton": 20,
+    "tokensUniqueToSwitch": 17,
+    "icons":              0,
+    "images":             0,
+    "interactions":       1,
+    "screenshots":        0,
+    "$comment": "PoC coverage. Toggle interaction declared in component spec (Off↔On with SP-9 motionReduce policy=skip); not yet captured in a separate prototype.json (Step 5 deferred)."
+  },
+
+  "modes": ["light"],
+  "$modesNote": "Dark mode not yet extracted.",
+
+  "target": {
+    "platform": "web",
+    "framework": "react",
+    "styling": "tailwind + css-custom-properties",
+    "componentBaseline": "shadcn-ui"
+  },
+
+  "checksum": {
+    "algorithm": "sha256",
+    "files": {
+      "data/tokens.json":                                     { "sha256": "bd763b86e89dffc11b8614f65dcb27d0c6588020a3abec56a5b393ec1588e6cc", "bytes": 13661 },
+      "data/components/Switch.component.json":                { "sha256": "48264a57e14e5e00825dac6311d2f36ee9f533a251ff2e929d6d19a3768820bc", "bytes": 22926 },
+      "data/components/Switch.variants-samples.json":         { "sha256": "9655ff509b624a26a514b78658604e9631c7aac4d1800da1e11f83cc0160196d", "bytes": 18981 },
+      "data/icons/_index.json":                               { "sha256": "0c2a818a1dc65c73a592a2d32469d73a8b96b1df8c6641113fc132750f77a068", "bytes": 731 }
+    }
+  },
+
+  "validation": {
+    "smokeTests": [
+      {
+        "name": "Step 3 sample cell walks",
+        "tool": "Figma MCP (get_design_context)",
+        "date": "2026-05-15T23:30:00Z",
+        "cellsWalked": 6,
+        "result": "Patterns confirmed across all 5 axes. Active mechanism (layout-driven justify-content flip), state-axis bindings (track-fill state-invariant for Off; border + shadow + opacity vary), Box-type wrapping, sm-size typography surprise, Disabled outer-container opacity, Invalid-ring-at-rest pattern.",
+        "artifact": "$step2_known_gaps in Switch.component.json (4 gaps closed, 1 documented, 1 partial, 2 open)"
+      },
+      {
+        "name": "Reverse-render at consumer (Claude Design)",
+        "status": "PENDING — Step 8. Will validate SP-9 motionReduce policy=skip end-to-end on Switch toggle (and policy=slow on Button Spinner concurrently). When both pass, v0.3.0 locks."
+      }
+    ],
+    "canonicalTests": [
+      {
+        "name": "Pill radius universal (track + thumb)",
+        "result": "PASSED across all 6 walked cells (Default/Off, Default/On, Box, Invalid, Disabled, Focus, sm)"
+      },
+      {
+        "name": "Active-axis layout-driven (justify-content flip)",
+        "result": "PASSED — cell 428:1425 (Off) emits no justify class (default flex-start); cell 428:1431 (On) emits justify-end class"
+      }
+    ]
+  },
+
+  "auditFindings": {
+    "$comment": "Source-DS findings surfaced by this PoC. Bundle reflects reality; findings queued for Apollo v2 maintainer to act on.",
+    "F5":  { "severity": "MEDIUM", "summary": "Switch lacks Hover state across the 4-value state axis" },
+    "F6":  { "severity": "LOW",    "summary": "Switch lacks Pressed state" },
+    "F7":  { "severity": "LOW",    "summary": "Switch lacks Loading state" },
+    "F8":  { "severity": "MEDIUM", "summary": "Disabled uses opacity-50 (Switch) vs tinted color (Button) — cross-component DS inconsistency", "confirmedAt": "cell 21141:13977" },
+    "F9":  { "severity": "MEDIUM", "summary": "Track height 18.4px raw on default-size — no token at this value" },
+    "F10": { "severity": "MEDIUM", "summary": "Track height 14px raw on sm-size — same class as F9" },
+    "F11": { "severity": "MEDIUM-doc", "summary": "Invalid state shows destructive ring AT REST (not only on Focus) — apparently intentional Apollo v2 design; documented for downstream consumers" }
+  },
+
+  "knownGaps": [
+    { "id": "GAP-cells-61", "description": "61 of 64 cells not yet emitted as full node trees", "severity": "expected (PoC scope)", "resolution": "Step 3 full extraction" },
+    { "id": "GAP-prototype", "description": "Toggle animation timing (duration + easing) inferred only", "severity": "blocks SP-9 motionReduce final-form validation", "resolution": "Step 5 — prototype.json extraction" },
+    { "id": "GAP-dark-mode", "description": "Dark-mode token values not extracted", "severity": "expected", "resolution": "use_figma plugin-context call" },
+    { "id": "GAP-screenshots", "description": "No reverse-render ground-truth screenshots emitted (Step 6)", "severity": "blocks pixel-diff verifier", "resolution": "Step 6 — 128 PNGs" }
+  ],
+
+  "extensions": {
+    "loadOrder": ["SKILL.md", "MANIFEST.json", "references/", "data/"],
+    "progressiveDisclosure": true,
+    "companionBundle": "../poc-button (apollo-v2-button-bundle-poc) — sibling Switch + Button bundles share most tokens",
+    "$comment": "Consumer-recommended load order. SKILL.md → MANIFEST.json gets the consumer oriented in <2KB. References/ markdown summaries load next. Full JSON data loads only when a specific cell render is requested."
+  }
+}

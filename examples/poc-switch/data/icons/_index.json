@@ -1,0 +1,18 @@
+{
+  "$schema": "../../../../BUNDLE_SPEC.md#section-7.1",
+  "$bundleSchemaVersion": "0.3.0",
+  "$metadata": {
+    "source": {
+      "fileKey": "3401ZFUHoboOwA6GGjAEsq",
+      "scope": "Switch component-set (node 60:450)"
+    },
+    "$comment": "Apollo v2 Switch uses no icons across any of its 64 variant cells. Track + thumb + label + description compose the entire component. Empty index emitted to maintain bundle structure parity with Button — consumers can always read data/icons/_index.json and expect a list."
+  },
+  "icons": [],
+  "$coverage": {
+    "iconsUsedBySwitch": 0,
+    "iconsExtracted": 0,
+    "extractionCompleteness": 1.0,
+    "$comment": "Coverage is 100% trivially — there are zero icons to extract."
+  }
+}

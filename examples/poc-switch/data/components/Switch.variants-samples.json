@@ -1,0 +1,409 @@
+{
+  "$schema": "../../../../BUNDLE_SPEC.md#section-6.3",
+  "$bundleSchemaVersion": "0.3.0",
+  "componentId": "switch",
+  "variantCount": 64,
+  "$samplesOnly": true,
+  "$samplesNote": "3 of 64 cells. Demonstrates v0.3.0 node-tree schema on a non-Button atom. Cells chosen to exercise: active-axis layout shift (justify-content flip), SP-9 motionReduce policy=skip on toggle transition, SP-4 hardcoded $bindingStatus on track height + container width, Invalid-state ring-at-rest pattern.",
+  "$cellsIncluded": [
+    "size=default,active=Off,state=Default,type=Default,controlPlacement=Start",
+    "size=default,active=On,state=Default,type=Default,controlPlacement=Start",
+    "size=default,active=Off,state=Invalid,type=Default,controlPlacement=Start"
+  ],
+  "$extractionNotes": [
+    "Track + thumb are first-class slots in Switch (different from Button where slots are leftIcon/rightIcon/label/kbdGroup). Switch slots = track, thumb, label, description.",
+    "Active axis is layout-driven: Active=Off → track justify-content: flex-start (thumb at left); Active=On → flex-end (thumb at right). Smart-animate slides between the two endpoints. No transform/position-absolute.",
+    "Auto-layout per-side padding emitted; track has px-px (1px horizontal, 0 vertical) raw — not from a spacing token at 1px.",
+    "Per BUNDLE_SPEC §6.4 SP-4 + SP-4-extension v0.3.0: $bindingStatus emitted on bindable properties. Track height 18.4px = hardcoded. Container width 312px = hardcoded."
+  ],
+
+  "variants": [
+
+    {
+      "key": "size=default,active=Off,state=Default,type=Default,controlPlacement=Start",
+      "figmaNodeId": "428:1425",
+      "node": {
+        "type": "COMPONENT",
+        "name": "Size=default, Active=Off, State=Default, Type=Default, Control Placement=Start",
+        "figmaNodeId": "428:1425",
+        "elementHint": "<button>",
+        "visible": true,
+        "opacity": 1,
+        "blendMode": "PASS_THROUGH",
+        "geometry": {
+          "width": 312, "height": 42, "rotation": 0,
+          "$widthBindingStatus": "hardcoded",
+          "$widthNote": "Container width 312px raw; not bound to a width token. Apollo v2 source-DS audit candidate.",
+          "constraints": { "horizontal": "MIN", "vertical": "MIN" }
+        },
+        "layout": {
+          "mode": "HORIZONTAL",
+          "paddingTop": 0, "paddingRight": 0, "paddingBottom": 0, "paddingLeft": 0,
+          "itemSpacing": 8,
+          "primaryAxisAlignItems": "MIN",
+          "counterAxisAlignItems": "MIN",
+          "primaryAxisSizingMode": "FIXED",
+          "counterAxisSizingMode": "AUTO",
+          "layoutWrap": "NO_WRAP",
+          "bindings": { "itemSpacing": "{spacing.2}" },
+          "$bindingStatus": "fully-bound"
+        },
+        "fills": [],
+        "strokes": [],
+        "cornerRadius": { "topLeft": 0, "topRight": 0, "bottomLeft": 0, "bottomRight": 0, "smoothing": 0 },
+        "effects": [],
+        "clipsContent": false,
+
+        "children": [
+
+          {
+            "type": "FRAME",
+            "name": "Switch (track)",
+            "figmaNodeId": "428:1426",
+            "$role": "track",
+            "visible": true,
+            "geometry": {
+              "width": 32, "height": 18.4,
+              "$heightBindingStatus": "hardcoded",
+              "$heightBindingMismatchNote": "18.4px not bound; Apollo v2 has no height/h-* token at this value. F9 audit signal.",
+              "rotation": 0
+            },
+            "layout": {
+              "mode": "HORIZONTAL",
+              "paddingTop": 0, "paddingRight": 1, "paddingBottom": 0, "paddingLeft": 1,
+              "itemSpacing": 0,
+              "primaryAxisAlignItems": "MIN",
+              "counterAxisAlignItems": "CENTER",
+              "primaryAxisSizingMode": "FIXED",
+              "counterAxisSizingMode": "FIXED",
+              "$activeAxisNote": "Active=Off → primaryAxisAlignItems = MIN (justify-start). Thumb sits at left edge.",
+              "bindings": { "width": "{width.w-8}" },
+              "$bindingStatus": "partial"
+            },
+            "fills": [
+              { "type": "SOLID", "color": "#a3a3a3", "opacity": 1, "boundVariable": "{color.custom.input-dark-input-80}" }
+            ],
+            "$fillsBindingStatus": "fully-bound",
+            "strokes": [
+              { "type": "SOLID", "color": "#ffffff00", "opacity": 0, "boundVariable": "{color.tailwind.base.transparent}" }
+            ],
+            "strokeWeight": 2,
+            "strokeAlign": "INSIDE",
+            "$strokeNote": "Border-2 transparent acts as breathing margin between thumb and track edge. Captured per SP-7 (always emit even when transparent).",
+            "$strokeBindingStatus": "fully-bound",
+            "cornerRadius": {
+              "topLeft": 9999, "topRight": 9999, "bottomLeft": 9999, "bottomRight": 9999, "smoothing": 0,
+              "boundVariable": {
+                "topLeft": "{border-radius.rounded-full}",
+                "topRight": "{border-radius.rounded-full}",
+                "bottomLeft": "{border-radius.rounded-full}",
+                "bottomRight": "{border-radius.rounded-full}"
+              },
+              "$bindingStatus": "fully-bound"
+            },
+            "effects": [],
+            "clipsContent": false,
+
+            "children": [
+              {
+                "type": "FRAME",
+                "name": "Switch (thumb)",
+                "figmaNodeId": "428:1427",
+                "$role": "thumb",
+                "geometry": {
+                  "width": 16, "height": 16, "rotation": 0,
+                  "bindings": { "width": "{width.w-4}", "height": "{height.h-4}" },
+                  "$bindingStatus": "fully-bound"
+                },
+                "fills": [
+                  { "type": "SOLID", "color": "#fafafa", "opacity": 1, "boundVariable": "{color.base.background}" }
+                ],
+                "$fillsBindingStatus": "fully-bound",
+                "cornerRadius": {
+                  "topLeft": 9999, "topRight": 9999, "bottomLeft": 9999, "bottomRight": 9999,
+                  "boundVariable": {
+                    "topLeft": "{border-radius.rounded-full}",
+                    "topRight": "{border-radius.rounded-full}",
+                    "bottomLeft": "{border-radius.rounded-full}",
+                    "bottomRight": "{border-radius.rounded-full}"
+                  },
+                  "$bindingStatus": "fully-bound"
+                },
+                "children": []
+              }
+            ]
+          },
+
+          {
+            "type": "FRAME",
+            "name": "Field Content",
+            "figmaNodeId": "428:1428",
+            "$role": "fieldContent",
+            "geometry": { "width": "flex-1", "height": "AUTO" },
+            "layout": {
+              "mode": "VERTICAL",
+              "paddingTop": 0, "paddingRight": 0, "paddingBottom": 0, "paddingLeft": 0,
+              "itemSpacing": 2,
+              "primaryAxisAlignItems": "MIN",
+              "counterAxisAlignItems": "MIN",
+              "bindings": { "itemSpacing": "{spacing.0-5}" },
+              "$bindingStatus": "fully-bound"
+            },
+            "children": [
+              {
+                "type": "TEXT",
+                "name": "Label",
+                "figmaNodeId": "428:1429",
+                "$role": "label",
+                "characters": "Switch Text",
+                "font": { "family": "Open Sans", "style": "Regular", "weight": 500, "size": 14 },
+                "lineHeight": { "unit": "PIXELS", "value": 20 },
+                "letterSpacing": { "unit": "PIXELS", "value": 0 },
+                "textAlignHorizontal": "LEFT",
+                "textCase": "ORIGINAL",
+                "textDecoration": "NONE",
+                "textAutoResize": "WIDTH_AND_HEIGHT",
+                "fills": [{ "type": "SOLID", "color": "#0a0a0a", "boundVariable": "{color.base.foreground}" }],
+                "$fillsBindingStatus": "fully-bound",
+                "boundTextStyle": "{typography.text-sm-leading-normal-medium}"
+              },
+              {
+                "type": "TEXT",
+                "name": "Description",
+                "figmaNodeId": "428:1430",
+                "$role": "description",
+                "characters": "This is a switch description.",
+                "font": { "family": "Open Sans", "style": "Regular", "weight": 400, "size": 14 },
+                "lineHeight": { "unit": "PIXELS", "value": 20 },
+                "letterSpacing": { "unit": "PIXELS", "value": 0 },
+                "textAlignHorizontal": "LEFT",
+                "textDecoration": "NONE",
+                "fills": [{ "type": "SOLID", "color": "#737373", "boundVariable": "{color.base.muted-foreground}" }],
+                "$fillsBindingStatus": "fully-bound",
+                "boundTextStyle": "{typography.text-sm-leading-normal-normal}"
+              }
+            ]
+          }
+
+        ],
+
+        "$slotInstanceState": {
+          "showLabel": { "exposed": true, "value": true },
+          "showDescription": { "exposed": true, "value": true }
+        },
+
+        "a11y": {
+          "role": "switch",
+          "ariaChecked": "false",
+          "$comment": "Default state — aria-checked='false' because active=Off."
+        }
+      }
+    },
+
+    {
+      "key": "size=default,active=On,state=Default,type=Default,controlPlacement=Start",
+      "figmaNodeId": "428:1431",
+      "$cellNotes": "Active=On cell. Validates layout-driven thumb position (justify-content shift) + track-fill swap to base/primary.",
+      "node": {
+        "type": "COMPONENT",
+        "name": "Size=default, Active=On, State=Default, Type=Default, Control Placement=Start",
+        "figmaNodeId": "428:1431",
+        "elementHint": "<button>",
+        "geometry": {
+          "width": 312, "height": 42,
+          "$widthBindingStatus": "hardcoded"
+        },
+        "layout": {
+          "mode": "HORIZONTAL",
+          "itemSpacing": 8,
+          "bindings": { "itemSpacing": "{spacing.2}" }
+        },
+        "children": [
+          {
+            "type": "FRAME",
+            "name": "Switch (track)",
+            "figmaNodeId": "428:1432",
+            "$role": "track",
+            "geometry": { "width": 32, "height": 18.4, "$heightBindingStatus": "hardcoded" },
+            "layout": {
+              "mode": "HORIZONTAL",
+              "paddingLeft": 1, "paddingRight": 1,
+              "primaryAxisAlignItems": "MAX",
+              "$activeAxisNote": "Active=On → primaryAxisAlignItems = MAX (justify-end). Thumb sits at right edge."
+            },
+            "fills": [
+              { "type": "SOLID", "color": "#5a35c0", "boundVariable": "{color.base.primary}" }
+            ],
+            "$fillsBindingStatus": "fully-bound",
+            "strokes": [{ "type": "SOLID", "color": "#ffffff00", "boundVariable": "{color.tailwind.base.transparent}" }],
+            "strokeWeight": 2,
+            "cornerRadius": { "topLeft": 9999, "topRight": 9999, "bottomLeft": 9999, "bottomRight": 9999, "boundVariable": { "topLeft": "{border-radius.rounded-full}" } },
+            "children": [
+              {
+                "type": "FRAME",
+                "name": "Switch (thumb)",
+                "$role": "thumb",
+                "geometry": { "width": 16, "height": 16, "bindings": { "width": "{width.w-4}", "height": "{height.h-4}" } },
+                "fills": [{ "type": "SOLID", "color": "#fafafa", "boundVariable": "{color.base.background}" }],
+                "cornerRadius": { "topLeft": 9999, "topRight": 9999, "bottomLeft": 9999, "bottomRight": 9999, "boundVariable": { "topLeft": "{border-radius.rounded-full}" } }
+              }
+            ]
+          },
+          {
+            "type": "FRAME",
+            "name": "Field Content",
+            "$role": "fieldContent",
+            "$comment": "Identical to Active=Off cell — same children. Active axis affects track only, not labels."
+          }
+        ],
+
+        "a11y": {
+          "role": "switch",
+          "ariaChecked": "true",
+          "$comment": "active=On → aria-checked='true'."
+        }
+      }
+    },
+
+    {
+      "key": "size=default,active=Off,state=Invalid,type=Default,controlPlacement=Start",
+      "figmaNodeId": "21141:9448",
+      "$cellNotes": "Invalid state. Validates: (a) destructive border swap on track, (b) focus-destructive ring AT REST (always shown), (c) label color shift to destructive, (d) description STAYS muted (F11 spec finding — Invalid doesn't push description to red).",
+      "node": {
+        "type": "COMPONENT",
+        "name": "Size=default, Active=Off, State=Invalid, Type=Default, Control Placement=Start",
+        "figmaNodeId": "21141:9448",
+        "elementHint": "<button>",
+        "geometry": { "width": 312, "height": 42, "$widthBindingStatus": "hardcoded" },
+        "layout": {
+          "mode": "HORIZONTAL",
+          "itemSpacing": 8,
+          "bindings": { "itemSpacing": "{spacing.2}" }
+        },
+        "children": [
+          {
+            "type": "FRAME",
+            "name": "Switch (track)",
+            "figmaNodeId": "21141:9449",
+            "$role": "track",
+            "geometry": { "width": 32, "height": 18.4 },
+            "layout": {
+              "mode": "HORIZONTAL",
+              "paddingLeft": 1, "paddingRight": 1,
+              "primaryAxisAlignItems": "MIN"
+            },
+            "fills": [
+              { "type": "SOLID", "color": "#a3a3a3", "boundVariable": "{color.custom.input-dark-input-80}" }
+            ],
+            "strokes": [
+              { "type": "SOLID", "color": "#dc2626", "boundVariable": "{color.base.destructive}" }
+            ],
+            "strokeWeight": 1,
+            "$strokeNote": "Invalid swaps the transparent border-2 for a 1px solid destructive border.",
+            "strokeAlign": "INSIDE",
+            "cornerRadius": { "topLeft": 9999, "topRight": 9999, "bottomLeft": 9999, "bottomRight": 9999, "boundVariable": { "topLeft": "{border-radius.rounded-full}" } },
+            "effects": [
+              {
+                "type": "DROP_SHADOW",
+                "offset": { "x": 0, "y": 0 },
+                "radius": 0,
+                "spread": 3,
+                "color": "#dc262633",
+                "visible": true,
+                "blendMode": "NORMAL",
+                "boundVariable": "{effect.focus-destructive}",
+                "$comment": "F11: Invalid state shows destructive focus ring AT REST (always, not only on Focus). Apollo v2 intentional emphasis."
+              }
+            ],
+            "$effectsBindingStatus": "fully-bound",
+            "clipsContent": true,
+            "$clipsContentNote": "Invalid emits overflow-clip — likely to prevent thumb from escaping the new 1px solid border edge.",
+            "children": [
+              {
+                "type": "FRAME",
+                "name": "Switch (thumb)",
+                "$role": "thumb",
+                "geometry": { "width": 16, "height": 16 },
+                "fills": [{ "type": "SOLID", "color": "#fafafa", "boundVariable": "{color.base.background}" }],
+                "cornerRadius": { "topLeft": 9999 }
+              }
+            ]
+          },
+          {
+            "type": "FRAME",
+            "name": "Field Content",
+            "$role": "fieldContent",
+            "children": [
+              {
+                "type": "TEXT",
+                "name": "Label",
+                "$role": "label",
+                "characters": "Switch Text",
+                "font": { "family": "Open Sans", "style": "Regular", "weight": 500, "size": 14 },
+                "lineHeight": { "unit": "PIXELS", "value": 20 },
+                "fills": [{ "type": "SOLID", "color": "#dc2626", "boundVariable": "{color.base.destructive}" }],
+                "$fillsBindingStatus": "fully-bound",
+                "$invalidNote": "Label fill shifts to destructive on Invalid state.",
+                "boundTextStyle": "{typography.text-sm-leading-normal-medium}"
+              },
+              {
+                "type": "TEXT",
+                "name": "Description",
+                "$role": "description",
+                "characters": "This is a switch description.",
+                "font": { "family": "Open Sans", "style": "Regular", "weight": 400, "size": 14 },
+                "lineHeight": { "unit": "PIXELS", "value": 20 },
+                "fills": [{ "type": "SOLID", "color": "#737373", "boundVariable": "{color.base.muted-foreground}" }],
+                "$invalidNote": "Description STAYS muted on Invalid (does NOT shift to destructive). F11 confirmation.",
+                "boundTextStyle": "{typography.text-sm-leading-normal-normal}"
+              }
+            ]
+          }
+        ],
+
+        "a11y": {
+          "role": "switch",
+          "ariaChecked": "false",
+          "ariaInvalid": "true",
+          "$comment": "Invalid state should set aria-invalid='true'. Renderer responsibility — Apollo v2 source-DS doesn't encode aria-* directly; bundle promises it."
+        }
+      }
+    }
+
+  ],
+
+  "$verificationCandidate": {
+    "$comment": "These 3 cells double as smoke-test inputs for the next Claude Design re-test. Feed this file + tokens.json + Switch.component.json; ask Claude Design to render each cell.",
+    "expectations": [
+      {
+        "cell": "size=default,active=Off,state=Default,type=Default,controlPlacement=Start",
+        "expectCSS": [
+          "container: display: inline-flex; gap: 8px; width: 312px",
+          "track: background-color: #a3a3a3; border: 2px solid transparent; border-radius: 9999px; height: 18.4px; width: 32px; justify-content: flex-start",
+          "thumb: background-color: #fafafa; border-radius: 9999px; width: 16px; height: 16px",
+          "label: color: #0a0a0a; font-family: Open Sans; font-weight: 500; font-size: 14px; line-height: 20px",
+          "description: color: #737373; font-weight: 400"
+        ],
+        "expectVisual": "Gray pill track 32×~18 with white 16px thumb at LEFT. Black label 'Switch Text' + gray description below."
+      },
+      {
+        "cell": "size=default,active=On,state=Default,type=Default,controlPlacement=Start",
+        "expectCSS": [
+          "track: background-color: #5a35c0 (violet primary); justify-content: flex-end",
+          "thumb: same 16px white circle, now at RIGHT edge of track",
+          "label + description: unchanged from Active=Off cell"
+        ],
+        "expectVisual": "Violet pill track with white thumb at RIGHT."
+      },
+      {
+        "cell": "size=default,active=Off,state=Invalid,type=Default,controlPlacement=Start",
+        "expectCSS": [
+          "track: background-color: #a3a3a3; border: 1px solid #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,0.2); overflow: hidden",
+          "label: color: #dc2626 (destructive)",
+          "description: color: #737373 (muted — UNCHANGED, F11 documents this)"
+        ],
+        "expectVisual": "Gray pill track with thin red border + red glow ring at rest, red label, muted gray description. No Focus required to show the ring."
+      }
+    ]
+  }
+}
