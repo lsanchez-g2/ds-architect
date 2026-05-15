@@ -1,0 +1,445 @@
+{
+  "$schema": "../../../../BUNDLE_SPEC.md#section-6.3",
+  "$bundleSchemaVersion": "0.2.0",
+  "componentId": "btn",
+  "variantCount": 264,
+  "$samplesOnly": true,
+  "$samplesNote": "3 of 264 cells. Demonstrates v0.2.0 node-tree schema (§6.3 + §6.4) on real Apollo v2 data. Full 256-cell extraction deferred. Cells chosen to exercise: SP-4 ($bindingStatus), SP-5 (swapDefaults Loading→Spinner), SP-3 (textDecoration), SP-7 (clipsContent), and the canonical fully-rounded round-trip target.",
+  "$cellsIncluded": [
+    "variant=Default,state=Default,size=default",
+    "variant=Default,state=Loading,size=default",
+    "variant=Link,state=Default,size=default"
+  ],
+  "$extractionNotes": [
+    "Auto-layout padding values are emitted per Figma Plugin API conventions (paddingTop/Right/Bottom/Left separately). get_design_context's `p-[…]` shorthand was lossy on this point — real Apollo v2 uses asymmetric padding (px=spacing/8, py=spacing/2 for size=default). Full extraction MUST read paddingTop/Right/Bottom/Left from Figma Plugin API directly, not infer from Tailwind code-gen output.",
+    "Constraints (horizontal/vertical) not yet captured from MCP read; defaulted to MIN/MIN. Real extraction must pull node.constraints.",
+    "Smoothing (cornerSmoothing 0…1) not captured by current MCP read; defaulted to 0. If Apollo v2 uses Apple-style continuous corners, full extraction MUST read this and emit per BUNDLE_SPEC §13.2.",
+    "Effects opacity + blendMode on individual layers defaulted; verify via use_figma plugin walk."
+  ],
+
+  "variants": [
+
+    {
+      "key": "variant=Default,state=Default,size=default",
+      "figmaNodeId": "37:930",
+      "node": {
+        "type": "COMPONENT",
+        "name": "Variant=Default, State=Default, Size=default",
+        "figmaNodeId": "37:930",
+        "visible": true,
+        "opacity": 1,
+        "blendMode": "PASS_THROUGH",
+        "geometry": {
+          "width": 124, "height": 44, "rotation": 0,
+          "constraints": { "horizontal": "MIN", "vertical": "MIN" }
+        },
+        "layout": {
+          "mode": "HORIZONTAL",
+          "paddingTop": 8, "paddingRight": 32, "paddingBottom": 8, "paddingLeft": 32,
+          "itemSpacing": 6,
+          "primaryAxisAlignItems":   "CENTER",
+          "counterAxisAlignItems":   "CENTER",
+          "primaryAxisSizingMode":   "AUTO",
+          "counterAxisSizingMode":   "FIXED",
+          "layoutWrap":              "NO_WRAP",
+          "bindings": {
+            "paddingTop":    "{spacing.2}",
+            "paddingRight":  "{spacing.8}",
+            "paddingBottom": "{spacing.2}",
+            "paddingLeft":   "{spacing.8}",
+            "itemSpacing":   "{spacing.1-5}",
+            "height":        "{height.h-11}"
+          },
+          "$bindingStatus": "fully-bound"
+        },
+        "fills": [
+          {
+            "type": "SOLID",
+            "color": "#5a35c0",
+            "opacity": 1,
+            "blendMode": "NORMAL",
+            "visible": true,
+            "boundVariable": "{color.base.primary}"
+          }
+        ],
+        "$fillsBindingStatus": "fully-bound",
+        "strokes": [],
+        "strokeWeight": 0,
+        "strokeAlign": "INSIDE",
+        "cornerRadius": {
+          "topLeft": 9999, "topRight": 9999, "bottomLeft": 9999, "bottomRight": 9999,
+          "smoothing": 0,
+          "boundVariable": {
+            "topLeft":     "{border-radius.rounded-full}",
+            "topRight":    "{border-radius.rounded-full}",
+            "bottomLeft":  "{border-radius.rounded-full}",
+            "bottomRight": "{border-radius.rounded-full}"
+          },
+          "$bindingStatus": "fully-bound"
+        },
+        "effects": [],
+        "clipsContent": true,
+        "$clipsContentReason": "Default-variant container has overflow-clip set. Per SP-7 (v0.2.0), emitted explicitly even though false is the spec default.",
+
+        "children": [
+
+          {
+            "type": "TEXT",
+            "name": "Button",
+            "figmaNodeId": "37:925",
+            "visible": true,
+            "opacity": 1,
+            "blendMode": "NORMAL",
+            "geometry": {
+              "width": "AUTO", "height": "AUTO", "rotation": 0,
+              "constraints": { "horizontal": "MIN", "vertical": "CENTER" }
+            },
+            "characters": "Button",
+            "font":              { "family": "Open Sans", "style": "SemiBold", "weight": 600, "size": 18 },
+            "lineHeight":        { "unit": "PIXELS", "value": 28 },
+            "letterSpacing":     { "unit": "PIXELS", "value": 0 },
+            "paragraphSpacing":  0,
+            "paragraphIndent":   0,
+            "textAlignHorizontal": "CENTER",
+            "textAlignVertical":   "CENTER",
+            "textCase":            "ORIGINAL",
+            "textDecoration":      "NONE",
+            "textAutoResize":      "WIDTH_AND_HEIGHT",
+            "fontVariations":      { "wdth": 100 },
+            "fills": [
+              {
+                "type": "SOLID",
+                "color": "#ffffff",
+                "opacity": 1,
+                "boundVariable": "{color.base.primary-foreground}"
+              }
+            ],
+            "$fillsBindingStatus":   "fully-bound",
+            "boundTextStyle":        "{typography.text-lg-leading-normal-semibold}",
+            "$boundTextStyleStatus": "fully-bound"
+          }
+
+        ],
+
+        "$slotInstanceState": {
+          "showLeftIcon":  { "exposed": true, "value": false, "$comment": "Slot present in component tree but hidden because showLeftIcon=false (default). When true, an INSTANCE child of type 'Lucide Icons/CircleArrowLeft' appears as first child." },
+          "showRightIcon": { "exposed": true, "value": false },
+          "showKbdGroup":  { "exposed": true, "value": false, "$comment": "When true, a KbdGroup INSTANCE child appears at end. KbdGroup background variable on Default variant = {color.custom.bg-background-20-dark-bg-background-10}." }
+        }
+      }
+    },
+
+    {
+      "key": "variant=Default,state=Loading,size=default",
+      "figmaNodeId": "60:103",
+      "$cellNotes": "Loading-state cell. Tests SP-5 swapDefaults: leftIcon slot replaced by a fixed Spinner instance — `showLeftIcon` prop is hidden from the variant's interface. Also tests CORRECTION 1: fill uses primary-hover, not primary.",
+      "node": {
+        "type": "COMPONENT",
+        "name": "Variant=Default, State=Loading, Size=default",
+        "figmaNodeId": "60:103",
+        "visible": true,
+        "opacity": 1,
+        "blendMode": "PASS_THROUGH",
+        "geometry": {
+          "width": 146, "height": 44, "rotation": 0,
+          "constraints": { "horizontal": "MIN", "vertical": "MIN" }
+        },
+        "$geometryNote": "Width 146 (vs 124 for Default state) — wider due to the always-present Spinner adding 16px + 6px gap before the label.",
+        "layout": {
+          "mode": "HORIZONTAL",
+          "paddingTop": 8, "paddingRight": 32, "paddingBottom": 8, "paddingLeft": 32,
+          "itemSpacing": 6,
+          "primaryAxisAlignItems": "CENTER",
+          "counterAxisAlignItems": "CENTER",
+          "primaryAxisSizingMode": "AUTO",
+          "counterAxisSizingMode": "FIXED",
+          "layoutWrap": "NO_WRAP",
+          "bindings": {
+            "paddingTop":    "{spacing.2}",
+            "paddingRight":  "{spacing.8}",
+            "paddingBottom": "{spacing.2}",
+            "paddingLeft":   "{spacing.8}",
+            "itemSpacing":   "{spacing.1-5}",
+            "height":        "{height.h-11}"
+          },
+          "$bindingStatus": "fully-bound"
+        },
+        "fills": [
+          {
+            "type": "SOLID",
+            "color": "#4a2ba3",
+            "opacity": 1,
+            "blendMode": "NORMAL",
+            "visible": true,
+            "boundVariable": "{color.base.primary-hover}"
+          }
+        ],
+        "$fillsBindingStatus": "fully-bound",
+        "$fillBindingExplanation": "Loading state intentionally uses the hover fill (primary-hover) rather than the default fill (primary). Visual cue that the button is interaction-busy. Pattern repeats across Secondary/Destructive Loading cells; Outline/Ghost/Link Loading cells keep their default fills.",
+        "strokes": [],
+        "strokeWeight": 0,
+        "strokeAlign": "INSIDE",
+        "cornerRadius": {
+          "topLeft": 9999, "topRight": 9999, "bottomLeft": 9999, "bottomRight": 9999,
+          "smoothing": 0,
+          "boundVariable": {
+            "topLeft":     "{border-radius.rounded-full}",
+            "topRight":    "{border-radius.rounded-full}",
+            "bottomLeft":  "{border-radius.rounded-full}",
+            "bottomRight": "{border-radius.rounded-full}"
+          },
+          "$bindingStatus": "fully-bound"
+        },
+        "effects": [],
+        "clipsContent": true,
+
+        "children": [
+
+          {
+            "type": "INSTANCE",
+            "name": "Spinner",
+            "figmaNodeId": "60:104",
+            "visible": true,
+            "opacity": 1,
+            "geometry": {
+              "width": 16, "height": 16, "rotation": 0,
+              "constraints": { "horizontal": "MIN", "vertical": "CENTER" }
+            },
+            "$slotOrigin": "swapDefault.state=Loading",
+            "$slotComment": "Per SP-5: Loading state replaces user-controllable leftIcon slot with a fixed Spinner instance. Hides showLeftIcon from the prop interface.",
+            "mainComponent": {
+              "figmaKey": "18665:25956",
+              "name": "Spinner",
+              "library": "Local"
+            },
+            "innerIcon": {
+              "library": "Lucide Icons",
+              "name": "LoaderCircle",
+              "figmaKey": "5197:3626"
+            },
+            "animation": "spin"
+          },
+
+          {
+            "type": "TEXT",
+            "name": "Button",
+            "figmaNodeId": "60:105",
+            "visible": true,
+            "opacity": 1,
+            "blendMode": "NORMAL",
+            "characters": "Button",
+            "font":              { "family": "Open Sans", "style": "SemiBold", "weight": 600, "size": 18 },
+            "lineHeight":        { "unit": "PIXELS", "value": 28 },
+            "letterSpacing":     { "unit": "PIXELS", "value": 0 },
+            "paragraphSpacing":  0,
+            "paragraphIndent":   0,
+            "textAlignHorizontal": "CENTER",
+            "textAlignVertical":   "CENTER",
+            "textCase":            "ORIGINAL",
+            "textDecoration":      "NONE",
+            "textAutoResize":      "WIDTH_AND_HEIGHT",
+            "fontVariations":      { "wdth": 100 },
+            "fills": [
+              {
+                "type": "SOLID",
+                "color": "#ffffff",
+                "opacity": 1,
+                "boundVariable": "{color.base.primary-hover-foreground}"
+              }
+            ],
+            "$fillsBindingStatus":   "fully-bound",
+            "boundTextStyle":        "{typography.text-lg-leading-normal-semibold}",
+            "$boundTextStyleStatus": "fully-bound"
+          }
+
+        ],
+
+        "$slotInstanceState": {
+          "showLeftIcon":  { "exposed": false, "$comment": "Suppressed in Loading — slot occupied by mandated Spinner per SP-5 swapDefaults." },
+          "showRightIcon": { "exposed": true,  "value": false },
+          "showKbdGroup":  { "exposed": true,  "value": false }
+        },
+
+        "a11y": {
+          "role": "button",
+          "aria-busy": true,
+          "$aria-busy-required": "Per Button.component.json.a11y.loadingDoublePreventionContract: Loading state MUST disable click + set aria-busy=true. Render-time consumers (e.g. Claude Design) must emit this attribute regardless of what Figma encodes."
+        }
+      }
+    },
+
+    {
+      "key": "variant=Link,state=Default,size=default",
+      "figmaNodeId": "60:244",
+      "$cellNotes": "Link variant. Tests SP-3 (textDecoration captured independently of typography token), SP-4 ($bindingStatus tracking when no fill is bound — transparent here), and the conceptual edge case 'pill component with no pill-shaped fill' (rounded-full still applied even though container is effectively invisible).",
+      "node": {
+        "type": "COMPONENT",
+        "name": "Variant=Link, State=Default, Size=default",
+        "figmaNodeId": "60:244",
+        "visible": true,
+        "opacity": 1,
+        "blendMode": "PASS_THROUGH",
+        "geometry": {
+          "width": 64, "height": 32, "rotation": 0,
+          "constraints": { "horizontal": "MIN", "vertical": "MIN" }
+        },
+        "$geometryNote": "Height 32 is hardcoded (no h-* token at this value in Apollo v2). Captured per SP-4 with $bindingStatus on the layout binding.",
+        "layout": {
+          "mode": "HORIZONTAL",
+          "paddingTop": 2, "paddingRight": 2, "paddingBottom": 2, "paddingLeft": 2,
+          "itemSpacing": 6,
+          "primaryAxisAlignItems": "CENTER",
+          "counterAxisAlignItems": "CENTER",
+          "primaryAxisSizingMode": "AUTO",
+          "counterAxisSizingMode": "AUTO",
+          "layoutWrap": "NO_WRAP",
+          "bindings": {
+            "paddingTop":    "{spacing.0-5}",
+            "paddingRight":  "{spacing.0-5}",
+            "paddingBottom": "{spacing.0-5}",
+            "paddingLeft":   "{spacing.0-5}",
+            "itemSpacing":   "{spacing.1-5}",
+            "height":        null
+          },
+          "$bindingStatus": "partial",
+          "$bindingStatusReason": "Padding + itemSpacing bound; height is a raw 32 with no available token at that value. Source-DS audit signal (see audit-findings-for-source.md potential follow-up: add h-8 token at 32px)."
+        },
+        "fills": [
+          {
+            "type": "SOLID",
+            "color": "#ffffff00",
+            "opacity": 0,
+            "blendMode": "NORMAL",
+            "visible": true,
+            "boundVariable": "{color.tailwind.base.transparent}"
+          }
+        ],
+        "$fillsBindingStatus": "fully-bound",
+        "$fillsNote": "Fill is fully transparent but still bound to a named token. Consumer renderers SHOULD honor the binding (i.e. emit `bg-transparent` or equivalent) rather than collapse to 'no background'.",
+        "strokes": [],
+        "strokeWeight": 0,
+        "strokeAlign": "INSIDE",
+        "cornerRadius": {
+          "topLeft": 9999, "topRight": 9999, "bottomLeft": 9999, "bottomRight": 9999,
+          "smoothing": 0,
+          "boundVariable": {
+            "topLeft":     "{border-radius.rounded-full}",
+            "topRight":    "{border-radius.rounded-full}",
+            "bottomLeft":  "{border-radius.rounded-full}",
+            "bottomRight": "{border-radius.rounded-full}"
+          },
+          "$bindingStatus": "fully-bound",
+          "$cornerNote": "Link variant retains rounded-full radius even though fill is transparent. Bundle preserves this faithfully; consumers MAY treat it as a no-op render."
+        },
+        "effects": [],
+        "clipsContent": false,
+        "$clipsContentReason": "Link variant does NOT clip content. Per SP-7, emitted explicitly to make the variant-asymmetric clipping visible.",
+
+        "children": [
+
+          {
+            "type": "TEXT",
+            "name": "Button",
+            "figmaNodeId": "60:246",
+            "visible": true,
+            "opacity": 1,
+            "blendMode": "NORMAL",
+            "geometry": {
+              "width": "AUTO", "height": "AUTO", "rotation": 0,
+              "constraints": { "horizontal": "MIN", "vertical": "CENTER" }
+            },
+            "characters": "Button",
+            "font":              { "family": "Open Sans", "style": "SemiBold", "weight": 600, "size": 18 },
+            "lineHeight":        { "unit": "PIXELS", "value": 28 },
+            "letterSpacing":     { "unit": "PIXELS", "value": 0 },
+            "paragraphSpacing":  0,
+            "paragraphIndent":   0,
+            "textAlignHorizontal": "CENTER",
+            "textAlignVertical":   "CENTER",
+            "textCase":            "ORIGINAL",
+            "textDecoration":      "UNDERLINE",
+            "$textDecorationNote": "SP-3 (v0.2.0): textDecoration is captured INDEPENDENTLY of the typography token. boundTextStyle here is the standard (non-underlined) text-lg-leading-normal-semibold; the underline is applied on the TEXT node as a separate property. Earlier v0.1.0 spec drafts assumed an `underlined-semibold` typography token wired the look; walked-cell evidence (60:244) shows that is not how Apollo v2 implements it.",
+            "textAutoResize":      "WIDTH_AND_HEIGHT",
+            "fontVariations":      { "wdth": 100 },
+            "fills": [
+              {
+                "type": "SOLID",
+                "color": "#5a35c0",
+                "opacity": 1,
+                "boundVariable": "{color.base.primary}"
+              }
+            ],
+            "$fillsBindingStatus":   "fully-bound",
+            "boundTextStyle":        "{typography.text-lg-leading-normal-semibold}",
+            "$boundTextStyleStatus": "fully-bound"
+          }
+
+        ],
+
+        "$slotInstanceState": {
+          "showLeftIcon":  { "exposed": true, "value": false },
+          "showRightIcon": { "exposed": true, "value": false },
+          "showKbdGroup":  { "exposed": false, "$comment": "Link variant does NOT expose showKbdGroup. Variant-constraint declared in Button.component.json.variantConstraints[0]." }
+        },
+
+        "$auditFindings": [
+          {
+            "id": "F1",
+            "severity": "HIGH",
+            "summary": "Typography hard-bound to text-lg-semibold (18px/600). Breaks line rhythm when used inline in 16px regular body text.",
+            "ref": "audit-findings-for-source.md Finding 1"
+          },
+          {
+            "id": "F3",
+            "severity": "LOW",
+            "summary": "Component documentationLink points to shadcn '#ghost' fragment instead of '#link'.",
+            "ref": "audit-findings-for-source.md Finding 3"
+          }
+        ]
+      }
+    }
+
+  ],
+
+  "$verificationCandidate": {
+    "$comment": "These 3 cells double as smoke-test inputs for any downstream Skill consumer. Feed this file + tokens.json + Button.component.json to Claude Design; ask it to render each cell. Expected outcomes documented below.",
+    "expectations": [
+      {
+        "cell": "variant=Default,state=Default,size=default",
+        "expectCSS": [
+          "background-color: #5a35c0",
+          "color: #ffffff",
+          "border-radius: 9999px",
+          "padding: 8px 32px",
+          "height: 44px",
+          "font-family: Open Sans (SemiBold 600)",
+          "font-size: 18px",
+          "line-height: 28px"
+        ],
+        "expectVisual": "Solid violet pill with white 'Button' label, ~124px wide. Touch-target compliant."
+      },
+      {
+        "cell": "variant=Default,state=Loading,size=default",
+        "expectCSS": [
+          "background-color: #4a2ba3 (primary-hover, NOT primary)",
+          "color: #ffffff",
+          "border-radius: 9999px",
+          "spinner child as first node, 16x16, Lucide LoaderCircle, animated"
+        ],
+        "expectVisual": "Darker violet pill (~146px wide due to spinner), white spinner icon, white 'Button' label, aria-busy=true."
+      },
+      {
+        "cell": "variant=Link,state=Default,size=default",
+        "expectCSS": [
+          "background-color: transparent",
+          "color: #5a35c0",
+          "border-radius: 9999px (irrelevant with transparent fill)",
+          "text-decoration: underline",
+          "font-family: Open Sans (SemiBold 600)",
+          "font-size: 18px"
+        ],
+        "expectVisual": "Underlined violet 'Button' text, no pill visible, no shadow. KNOWN ISSUE: when placed inline in 16px body text the 18px/semibold makes it visually heavier than surrounding type (audit-findings-for-source.md Finding 1). Bundle is faithful; source DS owns the fix."
+      }
+    ]
+  }
+}
