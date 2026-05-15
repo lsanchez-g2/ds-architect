@@ -46,6 +46,40 @@ Report saved at `verification/claude-design-3-cell-report.html`.
 
 **Aggregate: 17/17 expectations matched** (16 direct match + 1 self-correction that the spec actually enabled).
 
+---
+
+## Smoke test #3 — Skill-load + lookup-order fall-through (Claude Design, 2026-05-15 afternoon)
+
+Bundle installed as a Claude Skill (`apollo-v2-button-bundle-poc`). Fresh conversation. 4 prompts — 1 Tier-1 (samples), 3 Tier-2 (bindings map). No file contents pasted; Skill auto-loaded via SKILL.md frontmatter.
+
+Report saved at `verification/claude-design-skill-load-test.md` + `verification/prompt_{1,2,3,4}.html`.
+
+| Prompt | Lookup tier | Result | Spec property validated |
+|---|---|---|---|
+| 1: Default/Default/default | Tier 1 (samples) | ✅ Full | Baseline samples-file resolution works |
+| 2: Secondary/Hover/lg | Tier 2 (bindings) | Partial — refused `$tbdStep3` | **Hard Rule #1 enforced — refusal beats fabrication** |
+| 3: Outline/Disabled/icon | Tier 2 (bindings) | Partial w/ audit signals | F2 + GAP-5 surfaced (Hard Rule #10) |
+| 4: Destructive/Loading/default | Tier 2 (bindings) | ✅ Full | **SP-5 swap generalizes from Default to Destructive** |
+
+**Spec properties confirmed across the 4 cells:**
+
+- All 10 hard rules from SKILL.md applied correctly.
+- Pill radius (`border-radius: 9999px`) universal across 4 different variants (Default, Secondary, Outline, Destructive) — canonical test confirmed at the consumer integration tier.
+- Tier 1 → Tier 2 lookup fall-through works (3 of 4 prompts resolved via bindings map without any sample-file content).
+- **Hard Rule #1 ("Never invent values") enforced verbatim** — Claude Design refused to fabricate unbound `$tbdStep3` padding/gap/iconSize on size=lg. This is the spec's most important promise: discipline over plausibility.
+- SP-5 swapDefaults pattern (leftIcon → Spinner in Loading) generalizes across variants.
+- Hard Rule #10 (audit-finding surfacing) worked: F2 (hardcoded icon width) + GAP-5 (Outline Disabled border) flagged at render time.
+- `aria-busy="true"` + `pointer-events: none` emitted on Loading-state cells per `loadingDoublePreventionContract`.
+
+**Failures = bundle gaps, not consumer bugs.** Two extraction TODOs surfaced (already documented in `step3-sample-findings.md` §9):
+
+| Gap | Affects | Resolution |
+|---|---|---|
+| GAP-1 | size=sm/lg + icon-xs/icon-sm/icon-lg padding/gap/iconSize bindings | Walk cells `37:1616`, `37:1658`, etc. |
+| GAP-5 | Outline Disabled border color | Walk cell `112:1310` |
+
+Closing these unlocks full Tier-2 resolution for the remaining 261 cells.
+
 **Schema features validated end-to-end:**
 
 | Spec rule | Verdict |
@@ -66,6 +100,7 @@ The lossless-extraction contract (BUNDLE_SPEC.md v0.2.0) works **end-to-end** on
 
 - **Bindings level (smoke test #1):** 5/6 inline-context renders correct. 1/6 deferred = upstream source-DS issue, not extractor bug.
 - **Cell level (smoke test #2):** 17/17 expectations matched. The lone "near-miss" was a consumer self-correction that the v0.2.0 spec explicitly enabled — i.e. the spec did its job.
+- **Skill-load + lookup-order (smoke test #3):** 4/4 prompts ran through the documented lookup order; 2 fully resolved, 2 partials. Both partials are the spec's discipline working as designed (Hard Rule #1 refusal + Hard Rule #10 audit surfacing). All 10 hard rules upheld. Pill radius universal across 4 variants.
 
 Claude Design ingests the bundle as designed and reverse-renders with the fidelity the spec promises. Where Apollo v2's source DS has gaps (Findings 1, 2, 3 in `audit-findings-for-source.md`), the bundle faithfully reflects them — which is the correct behavior for a faithful extractor.
 
