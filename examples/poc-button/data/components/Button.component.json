@@ -1,0 +1,414 @@
+{
+  "$schema": "../../../../BUNDLE_SPEC.md#section-6.2",
+  "$bundleSchemaVersion": "0.2.0",
+
+  "id": "btn",
+  "name": "Button",
+  "level": "atom",
+  "figmaComponentSetId": "37:931",
+  "figmaParentFrame": "37:931",
+  "figmaFileKey": "3401ZFUHoboOwA6GGjAEsq",
+  "description": "Primary interactive control. Pill-shaped (system-wide rounded-full). Composes with Lucide Icon and an optional Kbd shortcut group. Maps to shadcn/ui Button.",
+  "documentationLinks": [
+    "https://ui.shadcn.com/docs/components/button"
+  ],
+
+  "variantProperties": {
+    "variant": {
+      "type": "VARIANT",
+      "values": ["Default", "Secondary", "Destructive", "Outline", "Ghost", "Link"]
+    },
+    "state": {
+      "type": "VARIANT",
+      "values": ["Default", "Hover", "Focus", "Loading", "Disabled", "Pressed"]
+    },
+    "size": {
+      "type": "VARIANT",
+      "values": ["xs", "default", "sm", "lg", "icon", "icon-xs", "icon-sm", "icon-lg"]
+    }
+  },
+  "variantConstraints": [
+    {
+      "when": { "variant": "Link" },
+      "allowedSizes": ["xs", "default", "sm", "lg"],
+      "disabledProps": ["showKbdGroup"],
+      "reason": "Link has no icon-only sizes and no keyboard-shortcut affordance. (SP-2 v0.2.0)"
+    },
+    {
+      "when": { "size": { "$in": ["icon", "icon-xs", "icon-sm", "icon-lg"] } },
+      "disabledProps": ["buttonText", "showLeftIcon", "showRightIcon", "showKbdGroup"],
+      "reason": "Icon-only sizes expose no text/slot booleans — single fixed icon slot only. Confirmed via cell 46:189 walk. (SP-2 v0.2.0)"
+    }
+  ],
+  "totalVariantCells": 264,
+
+  "defaultVariant": { "variant": "Default", "state": "Default", "size": "default" },
+
+  "exposedProps": [
+    { "name": "buttonText",    "type": "TEXT",    "default": "Button", "description": "Visible label.",
+      "whenSize": { "$except": ["icon", "icon-xs", "icon-sm", "icon-lg"] }
+    },
+    { "name": "showLeftIcon",  "type": "BOOLEAN", "default": false,    "description": "Reveal the left icon slot. (Replaced by Spinner when state=Loading per SP-5.)",
+      "whenSize": { "$except": ["icon", "icon-xs", "icon-sm", "icon-lg"] }
+    },
+    { "name": "showRightIcon", "type": "BOOLEAN", "default": false,    "description": "Reveal the right icon slot.",
+      "whenSize": { "$except": ["icon", "icon-xs", "icon-sm", "icon-lg"] }
+    },
+    { "name": "showKbdGroup",  "type": "BOOLEAN", "default": false,    "description": "Reveal a trailing keyboard shortcut indicator (Kbd / KbdGroup).",
+      "whenVariant": { "$except": ["Link"] },
+      "whenSize":    { "$except": ["icon", "icon-xs", "icon-sm", "icon-lg"] }
+    }
+  ],
+
+  "slots": [
+    {
+      "name": "leftIcon",
+      "exposedBy": "showLeftIcon",
+      "default": { "library": "Lucide Icons", "icon": "CircleArrowLeft" },
+      "size": { "boundTo": "{height.h-4}", "fallback": "16px" },
+      "swapPreferred": "Lucide Icons/*",
+      "iconSetMarker": "{icon-set.lucide-icons}",
+      "swapDefaults": {
+        "$comment": "SP-5 v0.2.0: state=Loading replaces user-controllable leftIcon with a fixed Spinner instance (Lucide LoaderCircle, animated).",
+        "state=Loading": {
+          "library": "Local",
+          "icon": "Spinner",
+          "componentRef": "Spinner",
+          "innerIcon": { "library": "Lucide Icons", "icon": "LoaderCircle" },
+          "animation": "spin",
+          "exposedBy": null,
+          "$reason": "Loading state hides showLeftIcon from the prop interface and always renders the spinner."
+        }
+      }
+    },
+    {
+      "name": "label",
+      "type": "TEXT",
+      "typography": "{typography.text-lg-leading-normal-semibold}",
+      "notes": "Per-size typography overrides — see bindings.typography below."
+    },
+    {
+      "name": "rightIcon",
+      "exposedBy": "showRightIcon",
+      "default": { "library": "Lucide Icons", "icon": "ArrowRight" },
+      "size": { "boundTo": "{height.h-4}", "fallback": "16px" },
+      "swapPreferred": "Lucide Icons/*"
+    },
+    {
+      "name": "kbdGroup",
+      "exposedBy": "showKbdGroup",
+      "type": "INSTANCE",
+      "componentRef": "KbdGroup",
+      "notes": "KbdGroup background is variant-aware (Default → custom/bg-background; Secondary+Outline → base/muted). Captured in bindings.kbdGroup.background."
+    }
+  ],
+
+  "layout": {
+    "mode": "HORIZONTAL",
+    "primaryAxisAlignItems": "CENTER",
+    "counterAxisAlignItems": "CENTER",
+    "primaryAxisSizingMode": "AUTO",
+    "counterAxisSizingMode": "FIXED",
+    "layoutWrap": "NO_WRAP",
+    "bindings": {
+      "padding-x":     "{spacing.8}",
+      "padding-y":     "{spacing.8}",
+      "itemSpacing":   "{spacing.1-5}",
+      "height-default":"{height.h-11}",
+      "$comment": "All values here are size=default. Per-size overrides in bindings.size below; bindings.size is the source of truth."
+    },
+    "clipsContent": {
+      "Default-variant": true,
+      "others": false,
+      "$reason": "Only the Default variant has overflow-clip set on the container frame. Other variants do not. Confirm in Step 3 across all cells."
+    }
+  },
+
+  "bindings": {
+    "$comment": "All bindings reference tokens from data/tokens.json via {path.to.token}. Per-cell resolved values live in Button.variants.json.",
+
+    "radius": {
+      "$all": "{border-radius.rounded-full}",
+      "$reason": "System-wide. Apollo v2 Button is pill across every variant × state × size."
+    },
+
+    "opacity": {
+      "$all": "{opacity.opacity-100}"
+    },
+
+    "size": {
+      "xs": {
+        "height":     "{height.h-9}",
+        "typography": "{typography.text-sm-leading-normal-semibold}",
+        "padding-x":  "{spacing.4}",
+        "padding-y":  "{spacing.4}",
+        "gap":        "{spacing.1}",
+        "iconSize":   "12px",
+        "$iconSizeBindingStatus": "hardcoded",
+        "$confirmed": "Walked cell 21114:109812. iconSize is 12px raw (no width/w-3 binding visible). Flag for source DS to bind."
+      },
+      "default": {
+        "height":     "{height.h-11}",
+        "typography": "{typography.text-lg-leading-normal-semibold}",
+        "padding-x":  "{spacing.8}",
+        "padding-y":  "{spacing.8}",
+        "gap":        "{spacing.1-5}",
+        "iconSize":   "{height.h-4}",
+        "$confirmed": "Walked cells 37:930, 37:932, 37:1477."
+      },
+      "sm": {
+        "height":     "{height.h-10}",
+        "typography": "{typography.text-sm-leading-normal-semibold}",
+        "$tbdStep3":  ["padding-x", "padding-y", "iconSize", "gap"],
+        "$pattern":   "Likely follows xs ↔ default interpolation: padding ~{spacing.4}-{spacing.8}, gap {spacing.1-5}, iconSize {height.h-4}. Confirm via cell 37:1616."
+      },
+      "lg": {
+        "height":     "{height.h-12}",
+        "typography": "{typography.text-lg-leading-normal-semibold}",
+        "$tbdStep3":  ["padding-x", "padding-y", "iconSize", "gap"],
+        "$pattern":   "Likely scales padding/gap proportionally. Confirm via cell 37:1658."
+      },
+      "icon": {
+        "height":     "{height.h-11}",
+        "width":      "44px",
+        "$widthBindingStatus": "hardcoded",
+        "$widthAuditFinding": "Should bind to {width.w-11} but Apollo v2 emits raw 44px. SP-4 v0.2.0 flag. Source DS should bind.",
+        "padding-x":  "0px",
+        "padding-y":  "0px",
+        "gap":        null,
+        "typography": null,
+        "iconSize":   "{height.h-4}",
+        "$constraint":"icon-only — no label slot; single fixed icon. Confirmed via cell 46:189."
+      },
+      "icon-xs": {
+        "height":     "{height.h-9}",
+        "width":      "36px",
+        "$widthBindingStatus": "hardcoded",
+        "padding-x":  "0px",
+        "padding-y":  "0px",
+        "gap":        null,
+        "typography": null,
+        "iconSize":   "12px",
+        "$iconSizeBindingStatus": "hardcoded",
+        "$tbdStep3":  []
+      },
+      "icon-sm": {
+        "height":     "{height.h-10}",
+        "width":      "40px",
+        "$widthBindingStatus": "hardcoded",
+        "padding-x":  "0px",
+        "padding-y":  "0px",
+        "gap":        null,
+        "typography": null,
+        "iconSize":   "{height.h-4}",
+        "$tbdStep3":  []
+      },
+      "icon-lg": {
+        "height":     "{height.h-12}",
+        "width":      "{height.h-12}",
+        "$widthBindingStatus": "$tbdStep3",
+        "padding-x":  "0px",
+        "padding-y":  "0px",
+        "gap":        null,
+        "typography": null,
+        "iconSize":   "{height.h-4}",
+        "$tbdStep3":  []
+      },
+      "Link-xs": {
+        "height": "24px",
+        "$heightBindingStatus": "hardcoded",
+        "typography": "{typography.text-sm-leading-normal-semibold}",
+        "textDecoration": "UNDERLINE",
+        "padding-x": "{spacing.0-5}",
+        "padding-y": "{spacing.0-5}",
+        "gap": "{spacing.1-5}",
+        "iconSize": "{height.h-4}",
+        "$notes": "Walked-cell-pattern inferred from 60:244. SP-3 v0.2.0: textDecoration applied on TEXT node, NOT via underlined-typography token. Earlier v0.1.0 assumption corrected."
+      },
+      "Link-default": {
+        "height": "32px",
+        "$heightBindingStatus": "hardcoded",
+        "typography": "{typography.text-lg-leading-normal-semibold}",
+        "textDecoration": "UNDERLINE",
+        "padding-x": "{spacing.0-5}",
+        "padding-y": "{spacing.0-5}",
+        "gap": "{spacing.1-5}",
+        "iconSize": "{height.h-4}",
+        "$confirmed": "Walked at cell 60:244. text-lg typography (NOT text-base as originally assumed). No underline class in code output — textDecoration captured separately per SP-3."
+      },
+      "Link-sm": {
+        "height": "28px",
+        "$heightBindingStatus": "hardcoded",
+        "typography": "{typography.text-sm-leading-normal-semibold}",
+        "textDecoration": "UNDERLINE",
+        "padding-x": "{spacing.0-5}",
+        "padding-y": "{spacing.0-5}",
+        "gap": "{spacing.1-5}",
+        "iconSize": "{height.h-4}"
+      },
+      "Link-lg": {
+        "height": "32px",
+        "$heightBindingStatus": "hardcoded",
+        "typography": "{typography.text-lg-leading-normal-semibold}",
+        "textDecoration": "UNDERLINE",
+        "padding-x": "{spacing.0-5}",
+        "padding-y": "{spacing.0-5}",
+        "gap": "{spacing.1-5}",
+        "iconSize": "{height.h-4}"
+      }
+    },
+
+    "fill": {
+      "Default":     { "Default": "{color.base.primary}",     "Hover": "{color.base.primary-hover}",     "Focus": "{color.base.primary}",     "Loading": "{color.base.primary-hover}",     "Disabled": "{color.base.primary-disabled}",     "Pressed": "{color.base.primary-active}" },
+      "Secondary":   { "Default": "{color.base.secondary}",   "Hover": "{color.base.secondary-hover}",   "Focus": "{color.base.secondary}",   "Loading": "{color.base.secondary-hover}",   "Disabled": "{color.base.secondary-disabled}",   "Pressed": "{color.base.secondary-active}" },
+      "Destructive": { "Default": "{color.base.destructive}", "Hover": "{color.base.destructive-hover}", "Focus": "{color.base.destructive}", "Loading": "{color.base.destructive-hover}", "Disabled": "{color.base.destructive-disabled}", "Pressed": "{color.base.destructive-active}" },
+      "Outline":     { "Default": "{color.custom.background-dark-input-30}", "Hover": "{color.base.accent}", "Focus": "{color.custom.background-dark-input-30}", "Loading": "{color.custom.background-dark-input-30}", "Disabled": "{color.custom.background-dark-input-30}", "Pressed": "{color.base.accent}", "$tbdStep3": "Hover + Pressed fills inferred from shadcn convention — verify per-cell." },
+      "Ghost":       { "Default": "{color.tailwind.base.transparent}", "Hover": "{color.base.accent}", "Focus": "{color.tailwind.base.transparent}", "Loading": "{color.tailwind.base.transparent}", "Disabled": "{color.tailwind.base.transparent}", "Pressed": "{color.base.accent}", "$tbdStep3": "Verify Pressed fill matches Hover or has its own token." },
+      "Link":        { "Default": "{color.tailwind.base.transparent}", "Hover": "{color.tailwind.base.transparent}", "Focus": "{color.tailwind.base.transparent}", "Loading": "{color.tailwind.base.transparent}", "Disabled": "{color.tailwind.base.transparent}", "Pressed": "{color.tailwind.base.transparent}", "$reason": "Link has no fill — text-only with underline." }
+    },
+
+    "border": {
+      "Default":     { "$all": "none" },
+      "Secondary":   { "$all": "none" },
+      "Destructive": { "$all": "none" },
+      "Outline":     { "color": "{color.base.primary}", "width": "{border-width.border}", "style": "solid", "$tbdStep3": "Verify border color per state (likely shifts on Disabled)." },
+      "Ghost":       { "$all": "none" },
+      "Link":        { "$all": "none" }
+    },
+
+    "text-color": {
+      "Default":     { "Default": "{color.base.primary-foreground}",     "Hover": "{color.base.primary-hover-foreground}",     "Focus": "{color.base.primary-foreground}",     "Loading": "{color.base.primary-foreground}",     "Disabled": "{color.base.primary-disabled-foreground}",     "Pressed": "{color.base.primary-active-foreground}" },
+      "Secondary":   { "Default": "{color.base.secondary-foreground}",   "Hover": "{color.base.secondary-hover-foreground}",   "Focus": "{color.base.secondary-foreground}",   "Loading": "{color.base.secondary-foreground}",   "Disabled": "{color.base.secondary-disabled-foreground}",   "Pressed": "{color.base.secondary-active-foreground}" },
+      "Destructive": { "Default": "{color.base.destructive-foreground}", "Hover": "{color.base.destructive-hover-foreground}", "Focus": "{color.base.destructive-foreground}", "Loading": "{color.base.destructive-foreground}", "Disabled": "{color.base.destructive-disabled-foreground}", "Pressed": "{color.base.destructive-active-foreground}" },
+      "Outline":     { "Default": "{color.base.primary}", "Hover": "{color.base.accent-foreground}", "Focus": "{color.base.primary}", "Loading": "{color.base.primary-hover}", "Disabled": "{color.base.primary-disabled}", "Pressed": "{color.base.accent-foreground}", "$tbdStep3": "Inferred — verify per cell." },
+      "Ghost":       { "Default": "{color.base.primary}", "Hover": "{color.base.accent-foreground}", "Focus": "{color.base.primary}", "Loading": "{color.base.primary-hover}", "Disabled": "{color.base.primary-disabled}", "Pressed": "{color.base.accent-foreground}", "$tbdStep3": "Inferred — verify per cell." },
+      "Link":        { "Default": "{color.base.primary}", "Hover": "{color.base.primary-hover}", "Focus": "{color.base.primary}", "Loading": "{color.base.primary-hover}", "Disabled": "{color.base.primary-disabled}", "Pressed": "{color.base.primary-active}", "$tbdStep3": "Inferred — verify per cell." }
+    },
+
+    "focus-ring": {
+      "Default":     "{effect.focus-default}",
+      "Secondary":   "{effect.focus-default}",
+      "Outline":     "{effect.focus-default}",
+      "Ghost":       "{effect.focus-default}",
+      "Link":        "{effect.focus-default}",
+      "Destructive": "{effect.focus-destructive}",
+      "$reason": "Destructive uses tinted destructive ring; all others share the neutral outline ring. Confirm via Step 3 walk of state=Focus cells."
+    },
+
+    "kbdGroup": {
+      "background": {
+        "Default":     "{color.custom.background-dark-input-30}",
+        "Secondary":   "base/muted (token not present in tokens.json scope; needs Step 1 supplement)",
+        "Destructive": "$tbdStep3",
+        "Outline":     "base/muted (token not present in tokens.json scope; needs Step 1 supplement)",
+        "Ghost":       "$tbdStep3",
+        "Link":        "$tbdStep3",
+        "$specPatch": "Apollo v2 KbdGroup references `base/muted` and `custom/bg-background-20-dark:bg-background-10` — neither was returned by get_variable_defs on node 37:931. Either (a) the slot variables come from a wider scope; or (b) get_variable_defs missed them. Investigate in Step 1 supplement before Step 3."
+      },
+      "padding-x": "{spacing.1}",
+      "gap":       "{spacing.1}",
+      "borderRadius": "border-radius/rounded-sm (6px, not in current tokens.json — Step 1 supplement)"
+    }
+  },
+
+  "composition": {
+    "uses": [
+      { "name": "LucideIcon", "ref": "Lucide Icons/CircleArrowLeft (default leftIcon)" },
+      { "name": "LucideIcon", "ref": "Lucide Icons/ArrowRight (default rightIcon)" },
+      { "name": "KbdGroup",   "ref": "Local component — kbdGroup slot" }
+    ]
+  },
+
+  "a11y": {
+    "role": "button",
+    "focusRing": "{effect.focus-default} (or {effect.focus-destructive} for variant=Destructive)",
+    "minTouchTarget": { "width": 44, "height": 44 },
+    "touchTargetCompliance": {
+      "compliant": ["default", "lg", "icon", "icon-lg"],
+      "nonCompliant": ["xs", "sm", "icon-xs", "icon-sm", "Link-*"],
+      "$auditFinding": "Sizes below 44×44 violate WCAG 2.5.5. Recorded as audit signal; bundle preserves actual heights."
+    },
+    "statesRequired": ["Default", "Hover", "Focus", "Loading", "Disabled", "Pressed"],
+    "loadingDoublePreventionContract": "Loading state MUST disable click + set aria-busy=true. Confirm Step 3 captures aria-busy node attribute if present."
+  },
+
+  "codeConnect": {
+    "candidates": [
+      {
+        "framework": "react",
+        "library": "shadcn/ui",
+        "url": "https://ui.shadcn.com/docs/components/button",
+        "perVariantUrls": {
+          "Default":     "https://ui.shadcn.com/docs/components/button#primary",
+          "Secondary":   "https://ui.shadcn.com/docs/components/button#secondary",
+          "Destructive": "https://ui.shadcn.com/docs/components/button#destructive",
+          "Outline":     "https://ui.shadcn.com/docs/components/button#outline",
+          "Ghost":       "https://ui.shadcn.com/docs/components/button#ghost",
+          "Link":        "https://ui.shadcn.com/docs/components/button#link"
+        }
+      }
+    ],
+    "quality": {
+      "$comment": "SP-6 v0.2.0: extractor MUST fetch each perVariantUrl, verify HTTP 200 + URL fragment exists, and emit results here.",
+      "perVariantUrlVerified": false,
+      "verificationFailures": [
+        {
+          "variant": "Link",
+          "figmaDocLink": "https://ui.shadcn.com/docs/components/button#ghost",
+          "expectedDocLink": "https://ui.shadcn.com/docs/components/button#link",
+          "figmaNodeId": "60:244",
+          "severity": "low",
+          "auditFinding": "Apollo v2 Link variant's documentationLink in Figma points to '#ghost'. Likely copy-paste miswire when authoring the variant. Source DS should fix."
+        }
+      ]
+    },
+    "$note": "Apollo v2 documentationLinks already point to shadcn. Strong Code Connect target."
+  },
+
+  "$step2_known_gaps": [
+    {
+      "id": "GAP-1",
+      "field": "bindings.size.*.padding-x / padding-y / iconSize / gap for xs, sm, lg, icon-*",
+      "resolution": "Step 3 sample-walk closed xs/default/icon. sm/lg/icon-xs/icon-sm/icon-lg flagged $tbdStep3 in the bindings.size map; close in full-extraction pass."
+    },
+    {
+      "id": "GAP-2",
+      "field": "bindings.fill.Outline.Hover/Pressed, bindings.fill.Ghost.Pressed, all Link text-color states",
+      "resolution": "v0.2.0 patched Loading fills (primary-hover/secondary-hover/destructive-hover). Outline/Ghost/Link Hover/Pressed inferred from shadcn convention; verify in full-extraction pass."
+    },
+    {
+      "id": "GAP-3",
+      "field": "bindings.kbdGroup.background — base/muted + custom/bg-background-20-dark:bg-background-10 missing from tokens.json",
+      "resolution": "v0.2.0 CLOSED. 5 nested-instance tokens backfilled to tokens.json with sourceTrace markers per SP-8."
+    },
+    {
+      "id": "GAP-4",
+      "field": "Loading-state spinner geometry + state-specific overrides",
+      "resolution": "v0.2.0 CLOSED. Cell 60:103 walked: bg=primary-hover; leftIcon slot replaced by Spinner (Lucide LoaderCircle) per SP-5 swapDefaults."
+    },
+    {
+      "id": "GAP-5",
+      "field": "Border behavior on Outline Disabled (does border color shift to disabled token?)",
+      "resolution": "Open. Defer to full-extraction pass (cell 112:1310 not walked)."
+    },
+    {
+      "id": "GAP-6",
+      "field": "Per-cell clipsContent — only Default variant had overflow-clip in sampled cells.",
+      "resolution": "v0.2.0 spec patched (SP-7): clipsContent MUST be emitted on every container node. Per-cell true/false captured in variants.json."
+    }
+  ],
+
+  "$spec_patches_v0_2_0": {
+    "$status": "APPLIED to BUNDLE_SPEC.md v0.2.0 — see §17 changelog. SP-1 through SP-8.",
+    "$summary": [
+      "SP-1: exposedProps[] whenVariant/whenSize filters",
+      "SP-2: variantConstraints disabledProps",
+      "SP-3: textDecoration independent capture",
+      "SP-4: $bindingStatus per bindable property",
+      "SP-5: slots[].swapDefaults per (variant,state)",
+      "SP-6: codeConnect.quality.perVariantUrlVerified + verificationFailures[]",
+      "SP-7: clipsContent always emitted; bindings.size all 7 fields mandatory",
+      "SP-8: nested-instance token scope (Kbd → 5 tokens backfilled)"
+    ]
+  }
+}

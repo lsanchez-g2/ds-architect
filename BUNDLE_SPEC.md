@@ -1,4 +1,4 @@
-# BUNDLE_SPEC.md — Lossless Design System Bundle (v0.1.0)
+# BUNDLE_SPEC.md — Lossless Design System Bundle (v0.2.0)
 
 > The serialization contract between **ds-architect** (extractor) and any downstream consumer (Claude Design, Stitch, v0, custom renderers).
 >
@@ -8,9 +8,10 @@
 
 ## 0. Status
 
-- **Version:** 0.1.0 (DRAFT)
+- **Version:** 0.2.0 (DRAFT — additive patches from Button PoC sample-first phase)
 - **Schema versioning:** semver, declared in `MANIFEST.json` → `bundleVersion`
 - **Compatibility:** consumers MUST refuse bundles with a major version newer than they support.
+- **v0.2.0 changelog:** see §17 below.
 
 ---
 
@@ -201,6 +202,14 @@ Composite types (`shadow`, `typography`, `border`, `gradient`, `transition`) fol
 
 If a Figma variable uses **conditional expressions** that cannot be decomposed into per-mode values, emit the token with `$extensions.unsupported: true` and `$extensions.figmaExpression: "<serialized expression>"`. Consumer SHOULD render a warning rather than fail.
 
+### 4.6 Nested-instance token scope — SP-8 (v0.2.0)
+
+`get_variable_defs` on a parent subtree may **miss tokens used only by nested INSTANCE children**. Apollo v2 Button proved this: querying the parent component-set surfaced 80 tokens, but the nested KbdGroup → Kbd component referenced 5 additional tokens (`base/muted`, `border-radius/rounded-sm`, `font-weight/medium`, `custom/bg-background-20-dark:bg-background-10`, `base/background`) that did not appear in the parent's response.
+
+**Rule:** the tokens extractor MUST iterate every nested INSTANCE and union its variable references into the bundle's `tokens.json`. Bundle `verification/coverage.json` MUST report `tokens.nestedInstanceContributions.<componentName>: <count>` so missing recursions are auditable.
+
+Practical implementation: either (a) walk the full node tree and accumulate `boundVariable` references, then resolve definitions via `figma.variables.getLocalVariableCollectionsAsync()`, or (b) run `get_variable_defs` once per top-level instance discovered during the walk.
+
 ---
 
 ## 5. Legacy Styles — `data/styles.legacy.json`
@@ -269,10 +278,30 @@ The **API + metadata + bindings map**. NOT the geometry — that's in `.variants
   },
   "defaultVariant": { "variant":"primary","size":"md","shape":"default","state":"default" },
   "exposedProps": [
-    { "name":"label",      "type":"TEXT",          "default":"Button" },
-    { "name":"iconLeft",   "type":"INSTANCE_SWAP", "preferredValues":["Icon/*"], "default": null },
-    { "name":"iconRight",  "type":"INSTANCE_SWAP", "preferredValues":["Icon/*"], "default": null },
-    { "name":"showLeftIcon","type":"BOOLEAN",      "default": false }
+    { "name":"label",       "type":"TEXT",          "default":"Button",  "description": "Visible label." },
+    { "name":"iconLeft",    "type":"INSTANCE_SWAP", "preferredValues":["Icon/*"], "default": null, "description": "Leading icon component." },
+    { "name":"iconRight",   "type":"INSTANCE_SWAP", "preferredValues":["Icon/*"], "default": null, "description": "Trailing icon component." },
+    { "name":"showLeftIcon","type":"BOOLEAN",       "default": false,    "description": "Reveal the left icon slot.",
+      "whenVariant": { "$any": true },
+      "whenSize":    { "$except": ["icon","icon-xs","icon-sm","icon-lg"] }
+    },
+    { "name":"showKbdGroup","type":"BOOLEAN",       "default": false,    "description": "Reveal a trailing keyboard shortcut indicator.",
+      "whenVariant": { "$except": ["Link"] },
+      "whenSize":    { "$except": ["icon","icon-xs","icon-sm","icon-lg"] }
+    }
+  ],
+  "variantConstraints": [
+    {
+      "when": { "variant": "Link" },
+      "allowedSizes": ["xs", "default", "sm", "lg"],
+      "disabledProps": ["showKbdGroup"],
+      "reason": "Link has no icon-only sizes and no keyboard-shortcut affordance."
+    },
+    {
+      "when": { "size": { "$in": ["icon","icon-xs","icon-sm","icon-lg"] } },
+      "disabledProps": ["label", "showLeftIcon", "showRightIcon", "showKbdGroup"],
+      "reason": "Icon-only sizes expose no text/slot booleans — single fixed icon slot only."
+    }
   ],
   "bindings": {
     "fill": {
@@ -294,15 +323,12 @@ The **API + metadata + bindings map**. NOT the geometry — that's in `.variants
       "default": "{radius.component.button}",
       "pill":    "{radius.component.button-pill}"
     },
-    "padding": {
-      "sm": { "x": "{spacing.component.padding-sm}", "y": "{spacing.component.padding-xs}" },
-      "md": { "x": "{spacing.component.padding-md}", "y": "{spacing.component.padding-sm}" },
-      "lg": { "x": "{spacing.component.padding-lg}", "y": "{spacing.component.padding-md}" }
-    },
-    "typography": {
-      "sm": "{typography.button.sm}",
-      "md": "{typography.button.md}",
-      "lg": "{typography.button.lg}"
+    "size": {
+      "$comment": "SP-7-prime (v0.2.0): bindings.size MUST declare all 7 per-size fields when applicable: height, width, padding-x, padding-y, gap, typography, iconSize. Use null for inapplicable axes (e.g. icon-only sizes have null typography). Step-2 Apollo v2 spec had many of these flagged $tbdStep3 — that is forbidden in shipped bundles; the extractor must walk one cell per size before emitting.",
+      "sm":      { "height": "{height.sm}",      "padding-x": "{spacing.component.padding-sm}", "padding-y": "{spacing.component.padding-xs}", "gap": "{spacing.component.gap-sm}", "typography": "{typography.button.sm}", "iconSize": "{icon.size.sm}" },
+      "md":      { "height": "{height.md}",      "padding-x": "{spacing.component.padding-md}", "padding-y": "{spacing.component.padding-sm}", "gap": "{spacing.component.gap-md}", "typography": "{typography.button.md}", "iconSize": "{icon.size.md}" },
+      "lg":      { "height": "{height.lg}",      "padding-x": "{spacing.component.padding-lg}", "padding-y": "{spacing.component.padding-md}", "gap": "{spacing.component.gap-lg}", "typography": "{typography.button.lg}", "iconSize": "{icon.size.lg}" },
+      "icon":    { "height": "{height.md}",      "width":     "{width.md}",                    "padding-x": "0px",                          "padding-y": "0px",                          "gap": null, "typography": null, "iconSize": "{icon.size.md}" }
     },
     "motion": {
       "hover": { "duration": "{motion.duration.fast}", "easing": "{motion.easing.out}" }
@@ -316,8 +342,38 @@ The **API + metadata + bindings map**. NOT the geometry — that's in `.variants
     "statesRequired": ["default","hover","focus-visible","active","disabled","aria-busy"]
   },
   "codeConnect": {
-    "react": { "source": "src/components/ui/button.tsx", "component": "Button" }
-  }
+    "react": { "source": "src/components/ui/button.tsx", "component": "Button" },
+    "perVariantUrls": {
+      "primary":     "https://ui.shadcn.com/docs/components/button#primary",
+      "secondary":   "https://ui.shadcn.com/docs/components/button#secondary",
+      "destructive": "https://ui.shadcn.com/docs/components/button#destructive",
+      "outline":     "https://ui.shadcn.com/docs/components/button#outline",
+      "ghost":       "https://ui.shadcn.com/docs/components/button#ghost",
+      "link":        "https://ui.shadcn.com/docs/components/button#link"
+    },
+    "quality": {
+      "perVariantUrlVerified": true,
+      "$comment": "SP-6 (v0.2.0): extractor MUST fetch each perVariantUrl, verify HTTP 200 + URL fragment exists, and emit `quality.perVariantUrlVerified: false` with a `verificationFailures[]` array if any fail. Apollo v2 Button has a real-world miswire: Link variant's documentationLink points to '#ghost' instead of '#link' — invisible until this verification gate is added."
+    }
+  },
+  "slots": [
+    {
+      "name": "leftIcon",
+      "exposedBy": "showLeftIcon",
+      "default": { "library": "Lucide Icons", "icon": "CircleArrowLeft" },
+      "swapPreferred": "Lucide Icons/*",
+      "swapDefaults": {
+        "$comment": "SP-5 (v0.2.0): per-(variant,state) default-swap. Some state values replace the user-controlled slot with a system-mandated component (e.g. Spinner during Loading).",
+        "state=Loading": { "library": "Local", "icon": "Spinner", "componentRef": "Spinner" }
+      }
+    },
+    {
+      "name": "rightIcon",
+      "exposedBy": "showRightIcon",
+      "default": { "library": "Lucide Icons", "icon": "ArrowRight" },
+      "swapPreferred": "Lucide Icons/*"
+    }
+  ]
 }
 ```
 
@@ -448,6 +504,22 @@ textAlignHorizontal, textAlignVertical, textCase, textDecoration, textAutoResize
 listOptions, hyperlink, openTypeFeatures, textStyleId, boundTextStyle,
 fontVariations (variable axes), textRangeOverrides (per-range font/color/style overrides)
 ```
+
+**SP-3 (v0.2.0):** `textDecoration` MUST be emitted independently of `boundTextStyle`. A node MAY have a non-`NONE` `textDecoration` (e.g. UNDERLINE) even when its typography is bound to a non-underlined token (or vice versa). Apollo v2 Button variant=Link shows this pattern: text uses standard `text-lg-semibold` typography with `textDecoration: "UNDERLINE"` applied on the TEXT node. Capturing typography alone is lossy.
+
+**SP-4 (v0.2.0):** Every bindable property MUST emit a sibling `$bindingStatus` field:
+
+```
+"cornerRadius": {
+  "topLeft": 8, ...,
+  "boundVariable": { "topLeft": "{radius.component.button}", ... },
+  "$bindingStatus": "fully-bound"   // or "partial", "hardcoded"
+}
+```
+
+Values: `fully-bound` (every component of the property has a `boundVariable`), `partial` (some components bound, some raw), `hardcoded` (no binding, raw value emitted). Hardcoded properties are valid output but are audit signals — consumers and audit tools rely on this flag. Apollo v2 Button size=icon emits `width: 44, $bindingStatus: "hardcoded"` for the container width.
+
+**SP-7 (v0.2.0):** `clipsContent` MUST be emitted on every container node, even when default `false`. Apollo v2 sets it asymmetrically across the variant axis (only Default variant has overflow-clip), and omitting the field collapses the asymmetry.
 
 For INSTANCE nodes:
 
@@ -813,4 +885,26 @@ Each phase has its own acceptance criteria in `v3-EXTRACTION-PLAN.md`.
 
 ---
 
-**Status:** draft. Lock at v0.1.0 once Button PoC passes acceptance thresholds in §10.4.
+## 17. Changelog
+
+### v0.2.0 — 2026-05-15 (Button PoC sample-first phase)
+
+Additive patches surfaced by walking 8 sample cells of Apollo v2 Button (file `3401ZFUHoboOwA6GGjAEsq`, node `37:931`). Backward-compatible: a v0.1.0 consumer can read a v0.2.0 bundle if it ignores the new fields.
+
+- **SP-1** — `exposedProps[]` entries gain optional `whenVariant` + `whenSize` filters (`{ $any: true }`, `{ $except: […] }`, `{ $in: […] }`). Drives per-variant/size prop-interface asymmetry. Real-world driver: Apollo v2 icon-only sizes hide all slot booleans; Link variant hides `showKbdGroup`.
+- **SP-2** — `variantConstraints[]` extended with `disabledProps: string[]`. Was: only `allowedSizes`. Now also: enumerate props that vanish under specific axis values. Examples in §6.2.
+- **SP-3** — TEXT-node schema: `textDecoration` is mandatory independent capture, NOT derivable from typography token. Apollo v2 Link variant uses standard `text-lg-semibold` typography with `textDecoration: UNDERLINE` applied separately on the node.
+- **SP-4** — Every bindable node property MUST emit `$bindingStatus`: `fully-bound | partial | hardcoded`. Audit signal for hardcoded values where a token exists (e.g. Apollo v2 icon size's `w-[44px]` is hardcoded though `width/w-11 = 44px` exists).
+- **SP-5** — `slots[].swapDefaults` map: per-(variant,state) default-swap. Lets one slot expose different system-mandated components under different state values (e.g. Loading state replaces leftIcon with Spinner).
+- **SP-6** — `codeConnect.quality.perVariantUrlVerified` boolean + `verificationFailures[]`. Extractor MUST fetch each `perVariantUrls` entry, verify HTTP 200 + URL fragment exists, and emit verification status. Catches doc-URL miswires (Apollo v2 Link variant points to `#ghost` instead of `#link`).
+- **SP-7** — Container nodes MUST always emit `clipsContent` even when default `false`. Apollo v2 Button has variant-asymmetric clipping (only Default variant has overflow-clip).
+- **SP-7-prime** — `bindings.size[<size>]` MUST declare all 7 fields when applicable: `height`, `width`, `padding-x`, `padding-y`, `gap`, `typography`, `iconSize`. Use `null` for genuinely inapplicable axes (e.g. icon-only sizes have `null` typography). `$tbdStep3` placeholders are forbidden in shipped bundles.
+- **SP-8** — Tokens extractor MUST union variable references from **every nested INSTANCE descendant**, not just `get_variable_defs` on the parent subtree. Apollo v2 Button parent reports 80 tokens; the nested KbdGroup → Kbd descendant adds 5 more (`base/muted`, `border-radius/rounded-sm`, `font-weight/medium`, `custom/bg-background-20-dark:bg-background-10`, `base/background`). `verification/coverage.json` MUST report `tokens.nestedInstanceContributions.<componentName>`.
+
+### v0.1.0 — 2026-05-15
+
+Initial draft. Schema contract for: tokens (W3C extended), component manifests, full per-variant node trees, asset pipeline (icons/images/fonts/screenshots), composition + token graph, prototype + interactions, reverse-render verification protocol, versioning, documented fidelity gaps.
+
+---
+
+**Status:** v0.2.0 draft. Lock at v0.2.0 once Button PoC `verification/pixel-diff.json` and `verification/binding-diff.json` meet §10.4 thresholds. Bump to v0.3.0 only if molecule/organism batches surface non-additive schema changes.
